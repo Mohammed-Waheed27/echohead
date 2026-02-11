@@ -9,9 +9,13 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryGreen,
         primary: AppColors.primaryGreen,
-        secondary: AppColors.primaryGreenLight,
+        secondary: AppColors.secondaryGreen,
+        tertiary: AppColors.accentTeal,
+        surface: AppColors.surfaceColor,
+        background: AppColors.backgroundColor,
       ),
       scaffoldBackgroundColor: AppColors.backgroundColor,
+      cardColor: AppColors.cardBackground,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primaryGreen,
         foregroundColor: Colors.white,

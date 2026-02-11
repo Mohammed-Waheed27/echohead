@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +8,19 @@ import 'core/di/service_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Handle Flutter framework errors
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+  };
+
+  // Handle platform errors
+  PlatformDispatcher.instance.onError = (error, stack) {
+    // Log error but don't crash the app
+    debugPrint('Platform error: $error');
+    return true;
+  };
+
   await ServiceLocator.init();
   runApp(const MyApp());
 }
@@ -33,6 +47,14 @@ class MyApp extends StatelessWidget {
           supportedLocales: const [Locale('ar', 'SA'), Locale('en', 'US')],
           locale: const Locale('ar', 'SA'),
           routerConfig: AppRouter.router,
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: child!,
+            );
+          },
         );
       },
     );

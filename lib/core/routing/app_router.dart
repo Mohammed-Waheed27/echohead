@@ -10,6 +10,8 @@ import '../../Features/Admin/presentation/pages/admin_dashboard_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_dashboard_page.dart';
 import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
 import '../../Features/user/presentation/pages/user_dashboard_page.dart';
+import '../../Features/user/presentation/pages/home_page.dart';
+import '../../Features/user/presentation/pages/report_issue_page.dart';
 import '../../core/shared/constants/user_types.dart';
 import '../di/service_locator.dart';
 import 'router_names.dart';
@@ -20,9 +22,19 @@ class AppRouter {
   }
 
   static final GoRouter router = GoRouter(
-    initialLocation: RouterNames.splash,
+    initialLocation: RouterNames.home,
     debugLogDiagnostics: true,
     routes: [
+      // Home Route
+      GoRoute(
+        path: RouterNames.home,
+        builder: (context, state) => const HomePage(),
+      ),
+      // Report Issue Route
+      GoRoute(
+        path: RouterNames.reportIssue,
+        builder: (context, state) => const ReportIssuePage(),
+      ),
       GoRoute(
         path: RouterNames.splash,
         builder: (context, state) => const SplashPage(),

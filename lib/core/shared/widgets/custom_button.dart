@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../utils/responsive_helper.dart';
+import '../constants/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -22,31 +22,51 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLargeScreen = ResponsiveHelper.isLargeScreen(context);
-    final buttonHeight = height ?? (isLargeScreen ? 56.0 : 56.h);
-    final fontSize = isLargeScreen ? 18.0 : 18.sp;
-    final borderRadius = isLargeScreen ? 12.0 : 12.r;
+    final buttonHeight = height ?? 50.h;
+    final fontSize = 16.sp;
+    final borderRadius = 12.r;
+    final buttonColor = backgroundColor ?? AppColors.primaryGreen;
+    final textColorFinal = textColor ?? Colors.white;
 
     return SizedBox(
       width: width ?? double.infinity,
       height: buttonHeight,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? const Color(0xFF4CAF50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Container(
+            width: width ?? double.infinity,
+            height: buttonHeight,
+            decoration: BoxDecoration(
+              color: buttonColor,
+              borderRadius: BorderRadius.circular(borderRadius),
+              boxShadow: onPressed != null
+                  ? [
+                      BoxShadow(
+                        color: buttonColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            alignment: Alignment.center,
+            child: Text(
+              text,
+              style: TextStyle(
+                color: textColorFinal,
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
-          elevation: 0,
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: textColor ?? Colors.white,
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-          ),
-          textDirection: TextDirection.rtl,
         ),
       ),
     );

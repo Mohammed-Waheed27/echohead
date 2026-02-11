@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/shared/constants/app_colors.dart';
-import '../../../../core/shared/constants/app_strings.dart';
 
 class WorkerDashboardHeader extends StatelessWidget {
   const WorkerDashboardHeader({super.key});
@@ -9,39 +9,63 @@ class WorkerDashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.symmetric(
+        horizontal: 24.w,
+        vertical: 24.h,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
           colors: [
             AppColors.primaryGreen,
-            AppColors.primaryGreenLight,
+            AppColors.primaryGreenDark,
           ],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        textDirection: TextDirection.rtl,
         children: [
-          Text(
-            AppStrings.welcomeBack,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'مرحباً بعودتك',
+                  style: TextStyle(
+                    color: AppColors.textOnGreen,
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textDirection: TextDirection.rtl,
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  'عامل',
+                  style: TextStyle(
+                    color: AppColors.textOnGreen.withOpacity(0.9),
+                    fontSize: 16.sp,
+                  ),
+                  textDirection: TextDirection.rtl,
+                ),
+              ],
             ),
-            textDirection: TextDirection.rtl,
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'عامل',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
+          Container(
+            padding: EdgeInsets.all(14.w),
+            decoration: BoxDecoration(
+              color: AppColors.textOnGreen.withOpacity(0.2),
+              shape: BoxShape.circle,
             ),
-            textDirection: TextDirection.rtl,
+            child: Icon(
+              Icons.work_outline,
+              color: AppColors.textOnGreen,
+              size: 28.sp,
+            ),
           ),
         ],
       ),
     );
   }
 }
-

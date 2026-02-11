@@ -54,6 +54,13 @@ dependencies:
   
   # Screen Util for responsiveness
   flutter_screenutil: ^5.9.0
+  
+  # Maps
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  
+  # Icons
+  font_awesome_flutter: ^10.6.0
 
 dev_dependencies:
   flutter_test:
