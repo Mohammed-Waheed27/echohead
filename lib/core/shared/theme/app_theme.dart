@@ -16,8 +16,8 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.backgroundColor,
       cardColor: AppColors.cardBackground,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primaryGreen,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
@@ -76,4 +76,3 @@ class AppTheme {
     );
   }
 }
-

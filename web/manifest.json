@@ -1,6 +1,6 @@
 {
-    "name": "trash_can",
-    "short_name": "trash_can",
+    "name": "SWMS",
+    "short_name": "SWMS",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

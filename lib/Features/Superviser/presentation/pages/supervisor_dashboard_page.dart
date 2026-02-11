@@ -22,7 +22,10 @@ class SupervisorDashboardPage extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.go(RouterNames.home),
           ),
-          title: const Text('لوحة تحكم المشرف', textDirection: TextDirection.rtl),
+          title: const Text(
+            'لوحة تحكم المشرف',
+            textDirection: TextDirection.rtl,
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
@@ -36,7 +39,10 @@ class SupervisorDashboardPage extends StatelessWidget {
         body: SingleChildScrollView(
           child: const Column(
             mainAxisSize: MainAxisSize.min,
-            children: [SupervisorDashboardHeader(), SupervisorDashboardContent()],
+            children: [
+              SupervisorDashboardHeader(),
+              SupervisorDashboardContent(),
+            ],
           ),
         ),
       ),

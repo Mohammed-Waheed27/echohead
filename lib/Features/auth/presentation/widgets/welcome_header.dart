@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/shared/constants/app_strings.dart';
+import '../../../../core/shared/widgets/app_logo.dart';
 
 class WelcomeHeader extends StatelessWidget {
   const WelcomeHeader({super.key});
@@ -7,32 +9,29 @@ class WelcomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            AppStrings.appName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
-            textDirection: TextDirection.rtl,
+          AppLogo(
+            width: 200.w,
+            height: 120.h,
+            colorFilter: Colors.white,
+            fit: BoxFit.contain,
+            withGlow: true,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
             child: Text(
               AppStrings.welcome,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
-                fontSize: 24,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
               textDirection: TextDirection.rtl,
@@ -43,4 +42,3 @@ class WelcomeHeader extends StatelessWidget {
     );
   }
 }
-

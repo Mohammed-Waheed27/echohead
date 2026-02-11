@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/responsive_helper.dart';
+import '../../../../core/shared/widgets/onboarding_background_painter.dart';
 import '../sections/onboarding_welcome_header_section.dart';
 import '../sections/onboarding_feature_icons_section.dart';
 import '../sections/onboarding_welcome_action_section.dart';
@@ -11,27 +11,16 @@ class OnboardingWelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLargeScreen = ResponsiveHelper.isLargeScreen(context);
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.gradientGreenEnd,
-              AppColors.gradientGreenStart,
-              AppColors.gradientGreenEnd,
-            ],
-            stops: const [0.0, 0.5, 1.0],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: OnboardingBackgroundPainter(),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: isLargeScreen 
-              ? _buildDesktopLayout(context) 
-              : _buildMobileLayout(context),
-        ),
+          SafeArea(child: _buildMobileLayout(context)),
+        ],
       ),
     );
   }
@@ -42,10 +31,7 @@ class OnboardingWelcomePage extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 40.h),
-          const Expanded(
-            flex: 2,
-            child: OnboardingWelcomeHeaderSection(),
-          ),
+          const Expanded(flex: 2, child: OnboardingWelcomeHeaderSection()),
           Expanded(
             flex: 3,
             child: Column(
@@ -72,10 +58,7 @@ class OnboardingWelcomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(height: 40.h),
-            const Expanded(
-              flex: 2,
-              child: OnboardingWelcomeHeaderSection(),
-            ),
+            const Expanded(flex: 2, child: OnboardingWelcomeHeaderSection()),
             Expanded(
               flex: 3,
               child: Column(

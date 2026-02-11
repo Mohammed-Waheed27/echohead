@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/shared/constants/app_colors.dart';
-import '../../../../core/shared/widgets/adaptive_container.dart';
+import '../../../../core/shared/widgets/liquid_glass_container.dart';
 import '../../../../core/shared/utils/responsive_helper.dart';
 import '../widgets/welcome_header.dart';
 import '../widgets/welcome_buttons.dart';
@@ -14,77 +14,49 @@ class WelcomePage extends StatelessWidget {
     final isLargeScreen = ResponsiveHelper.isLargeScreen(context);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.gradientGreenStart,
-              AppColors.gradientGreenEnd,
-            ],
-          ),
-        ),
+      body: LiquidGlassContainer(
+        hasWavyBottom: false,
+        customColors: AppColors.liquidGlassGradientVertical,
+        gradientBegin: Alignment.topCenter,
+        gradientEnd: Alignment.bottomCenter,
         child: SafeArea(
-          child: isLargeScreen ? _buildDesktopLayout(context) : _buildMobileLayout(context),
+          child: isLargeScreen
+              ? _buildDesktopLayout(context)
+              : _buildMobileLayout(context),
         ),
       ),
     );
   }
 
   Widget _buildMobileLayout(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          flex: 2,
-          child: const WelcomeHeader(),
-        ),
-        Expanded(
-          flex: 3,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30.r),
-                topRight: Radius.circular(30.r),
-              ),
-            ),
-            child: const WelcomeButtons(),
-          ),
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          SizedBox(height: 40.h),
+          const Expanded(flex: 2, child: WelcomeHeader()),
+          const Expanded(flex: 3, child: WelcomeButtons()),
+          SizedBox(height: 20.h),
+        ],
+      ),
     );
   }
 
   Widget _buildDesktopLayout(BuildContext context) {
-    return AdaptiveFormContainer(
+    return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              spreadRadius: 5,
-            ),
-          ],
-        ),
+        constraints: BoxConstraints(maxWidth: 500.w),
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(32.0),
-              child: WelcomeHeader(),
-            ),
-            const Expanded(
-              child: WelcomeButtons(),
-            ),
+            SizedBox(height: 40.h),
+            const Expanded(flex: 2, child: WelcomeHeader()),
+            const Expanded(flex: 3, child: WelcomeButtons()),
+            SizedBox(height: 20.h),
           ],
         ),
       ),
     );
   }
 }
-

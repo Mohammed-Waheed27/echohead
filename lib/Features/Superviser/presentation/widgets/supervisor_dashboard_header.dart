@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/shared/constants/app_colors.dart';
+import '../../../../core/shared/widgets/liquid_glass_container.dart';
 
 class SupervisorDashboardHeader extends StatelessWidget {
   const SupervisorDashboardHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return LiquidGlassContainer(
+      hasWavyBottom: true,
+      wavyDepth: 20.0,
+      customColors: AppColors.liquidGlassGradient,
+      gradientBegin: Alignment.topRight,
+      gradientEnd: Alignment.bottomLeft,
       padding: EdgeInsets.symmetric(
         horizontal: 24.w,
         vertical: 24.h,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            AppColors.primaryGreen,
-            AppColors.primaryGreenDark,
-          ],
-        ),
       ),
       child: Row(
         textDirection: TextDirection.rtl,
@@ -37,6 +32,13 @@ class SupervisorDashboardHeader extends StatelessWidget {
                     color: AppColors.textOnGreen,
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   textDirection: TextDirection.rtl,
                 ),

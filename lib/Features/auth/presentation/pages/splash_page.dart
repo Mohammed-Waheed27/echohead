@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/widgets/adaptive_container.dart';
+import '../../../../core/shared/widgets/liquid_glass_container.dart';
 import '../../../../core/shared/utils/responsive_helper.dart';
 import '../widgets/splash_header.dart';
 import '../widgets/splash_content.dart';
@@ -14,17 +15,12 @@ class SplashPage extends StatelessWidget {
     final isLargeScreen = ResponsiveHelper.isLargeScreen(context);
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.gradientGreenStart,
-              AppColors.gradientGreenEnd,
-            ],
-          ),
-        ),
+      body: LiquidGlassContainer(
+        hasWavyBottom: true,
+        wavyDepth: 30.0,
+        customColors: AppColors.liquidGlassGradient,
+        gradientBegin: Alignment.topLeft,
+        gradientEnd: Alignment.bottomRight,
         child: SafeArea(
           child: isLargeScreen ? _buildDesktopLayout(context) : _buildMobileLayout(context),
         ),
@@ -87,4 +83,3 @@ class SplashPage extends StatelessWidget {
     );
   }
 }
-

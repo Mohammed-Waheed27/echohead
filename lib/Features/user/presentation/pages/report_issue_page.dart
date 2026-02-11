@@ -41,7 +41,7 @@ class ReportIssuePage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ReportHeader(),
+            // const ReportHeader(),
             const ReportFormSection(),
           ],
         ),
@@ -49,4 +49,3 @@ class ReportIssuePage extends StatelessWidget {
     );
   }
 }
-

@@ -39,7 +39,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(20.w),
+      // margin: EdgeInsets.symmetric(horizontal: 24.w),
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -83,7 +83,10 @@ class _ReportFormSectionState extends State<ReportFormSection> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: AppColors.primaryGreen, width: 2),
+                  borderSide: BorderSide(
+                    color: AppColors.primaryGreen,
+                    width: 2,
+                  ),
                 ),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -140,9 +143,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
             SizedBox(height: 28.h),
 
             // Submit Button
-            ReportSubmitButton(
-              onPressed: () => _submitReport(context),
-            ),
+            ReportSubmitButton(onPressed: () => _submitReport(context)),
           ],
         ),
       ),
@@ -180,10 +181,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
           ),
           content: Text(
             'شكراً لك! تم إرسال تقريرك بنجاح وسيتم مراجعته قريباً.',
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 16.sp, color: AppColors.textSecondary),
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.center,
           ),
@@ -208,4 +206,3 @@ class _ReportFormSectionState extends State<ReportFormSection> {
     }
   }
 }
-

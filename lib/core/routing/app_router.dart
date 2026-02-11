@@ -1,7 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../Features/auth/presentation/pages/splash_page.dart';
-import '../../Features/auth/presentation/pages/welcome_page.dart';
 import '../../Features/auth/presentation/pages/onboarding_welcome_page.dart';
 import '../../Features/auth/presentation/pages/login_page.dart';
 import '../../Features/auth/presentation/pages/register_page.dart';
@@ -13,8 +12,8 @@ import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
 import '../../Features/user/presentation/pages/user_dashboard_page.dart';
 import '../../Features/user/presentation/pages/home_page.dart';
 import '../../Features/user/presentation/pages/report_issue_page.dart';
+import '../../Features/auth/presentation/pages/welcome_page.dart';
 import '../../core/shared/constants/user_types.dart';
-import '../../core/shared/utils/first_launch_handler.dart';
 import '../di/service_locator.dart';
 import 'router_names.dart';
 
@@ -24,28 +23,10 @@ class AppRouter {
   }
 
   static final GoRouter router = GoRouter(
-    initialLocation: RouterNames.home,
+    initialLocation: RouterNames.onboardingWelcome,
     debugLogDiagnostics: true,
-    redirect: (context, state) async {
-      // Check if this is the first launch
-      final isFirstLaunch = await FirstLaunchHandler.isFirstLaunch();
-      final isOnboardingRoute = state.matchedLocation == RouterNames.onboardingWelcome;
-      final isHomeRoute = state.matchedLocation == RouterNames.home;
-      
-      // If first launch and not already on onboarding page, redirect to onboarding
-      if (isFirstLaunch && !isOnboardingRoute) {
-        return RouterNames.onboardingWelcome;
-      }
-      
-      // If not first launch and on onboarding page, redirect to home
-      if (!isFirstLaunch && isOnboardingRoute) {
-        return RouterNames.home;
-      }
-      
-      return null; // No redirect needed
-    },
     routes: [
-      // Onboarding Welcome Route (first launch)
+      // Onboarding Welcome Route (initial page)
       GoRoute(
         path: RouterNames.onboardingWelcome,
         builder: (context, state) => const OnboardingWelcomePage(),
@@ -93,15 +74,13 @@ class AppRouter {
       // Company password routes
       GoRoute(
         path: RouterNames.companyPasswordManager,
-        builder: (context, state) => const CompanyPasswordPage(
-          userType: UserType.supervisor,
-        ),
+        builder: (context, state) =>
+            const CompanyPasswordPage(userType: UserType.supervisor),
       ),
       GoRoute(
         path: RouterNames.companyPasswordEmployee,
-        builder: (context, state) => const CompanyPasswordPage(
-          userType: UserType.worker,
-        ),
+        builder: (context, state) =>
+            const CompanyPasswordPage(userType: UserType.worker),
       ),
       // Registration routes
       GoRoute(
@@ -157,4 +136,3 @@ class AppRouter {
     ],
   );
 }
-

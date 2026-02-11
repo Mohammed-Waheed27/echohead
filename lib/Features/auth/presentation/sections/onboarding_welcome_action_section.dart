@@ -14,7 +14,7 @@ class OnboardingWelcomeActionSection extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Let's Start Button
+        // Let's Start Button - Using white background with green text (as per design)
         SizedBox(
           width: double.infinity,
           height: 50.h,
@@ -22,9 +22,9 @@ class OnboardingWelcomeActionSection extends StatelessWidget {
             onPressed: () async {
               // Mark first launch as complete
               await FirstLaunchHandler.setFirstLaunchComplete();
-              // Navigate to welcome page (existing welcome page with login options)
+              // Navigate directly to home page (map page)
               if (context.mounted) {
-                context.go(RouterNames.welcome);
+                context.go(RouterNames.home);
               }
             },
             style: ElevatedButton.styleFrom(

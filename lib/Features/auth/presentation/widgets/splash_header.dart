@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/shared/constants/app_strings.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../core/shared/widgets/app_logo.dart';
 
 class SplashHeader extends StatelessWidget {
   const SplashHeader({super.key});
@@ -10,17 +11,14 @@ class SplashHeader extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            AppStrings.appName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
-            textDirection: TextDirection.rtl,
+          AppLogo(
+            width: 200.w,
+            height: 120.h,
+            colorFilter: Colors.white,
+            fit: BoxFit.contain,
+            withGlow: true,
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -28,12 +26,12 @@ class SplashHeader extends StatelessWidget {
                 Icons.delete_outline,
                 Colors.blue,
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: 20.w),
               _buildIcon(
                 Icons.public,
                 Colors.green,
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: 20.w),
               _buildIcon(
                 Icons.delete_outline,
                 Colors.blue,
@@ -47,8 +45,8 @@ class SplashHeader extends StatelessWidget {
 
   Widget _buildIcon(IconData icon, Color color) {
     return Container(
-      width: 80,
-      height: 80,
+      width: 80.w,
+      height: 80.h,
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
         shape: BoxShape.circle,
@@ -57,9 +55,8 @@ class SplashHeader extends StatelessWidget {
       child: Icon(
         icon,
         color: Colors.white,
-        size: 40,
+        size: 40.sp,
       ),
     );
   }
 }
-

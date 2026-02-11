@@ -29,7 +29,6 @@ class WelcomeButtons extends StatelessWidget {
             onPressed: () {
               context.go(RouterNames.registerUser);
             },
-            backgroundColor: AppColors.primaryGreen,
             height: buttonHeight,
           ),
           SizedBox(height: spacing),
@@ -38,7 +37,6 @@ class WelcomeButtons extends StatelessWidget {
             onPressed: () {
               context.go(RouterNames.companyPasswordEmployee);
             },
-            backgroundColor: AppColors.primaryGreen,
             height: buttonHeight,
           ),
           SizedBox(height: spacing),
@@ -47,28 +45,8 @@ class WelcomeButtons extends StatelessWidget {
             onPressed: () {
               context.go(RouterNames.companyPasswordManager);
             },
-            backgroundColor: AppColors.primaryGreen,
             height: buttonHeight,
           ),
-          SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 24)),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     TextButton(
-          //       onPressed: () {
-          //         context.go('/login/user');
-          //       },
-          //       child: Text(
-          //         'تسجيل الدخول كمستخدم',
-          //         style: TextStyle(
-          //           color: AppColors.textSecondary,
-          //           fontSize: 14.sp,
-          //         ),
-          //         textDirection: TextDirection.rtl,
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );
