@@ -4,6 +4,7 @@ class RouterNames {
 
   // Auth Routes
   static const String splash = '/splash';
+  static const String onboardingWelcome = '/onboarding-welcome';
   static const String welcome = '/welcome';
 
   // Login Routes

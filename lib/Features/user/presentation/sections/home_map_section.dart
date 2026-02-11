@@ -15,47 +15,41 @@ class _HomeMapSectionState extends State<HomeMapSection> {
   GoogleMapController? _mapController;
   bool _hasError = false;
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(24.7136, 46.6753), // Riyadh coordinates
+    target: LatLng(30.0444, 31.2357), // Cairo, Egypt coordinates
     zoom: 13,
   );
 
-  // Random trash can locations (example locations in Riyadh)
+  // Trash can locations in Cairo, Egypt
   final Set<Marker> _markers = {
     Marker(
       markerId: const MarkerId('trash_can_1'),
-      position: const LatLng(24.7136, 46.6753),
+      position: const LatLng(30.0444, 31.2357), // Downtown Cairo (Tahrir Square area)
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 1'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_2'),
-      position: const LatLng(24.7200, 46.6800),
+      position: const LatLng(30.0626, 31.2197), // Zamalek
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 2'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_3'),
-      position: const LatLng(24.7100, 46.6700),
+      position: const LatLng(30.0875, 31.3200), // Heliopolis
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 3'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_4'),
-      position: const LatLng(24.7150, 46.6850),
+      position: const LatLng(29.9600, 31.2600), // Maadi
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 4'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_5'),
-      position: const LatLng(24.7080, 46.6780),
+      position: const LatLng(30.0628, 31.3200), // Nasr City
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 5'),
-    ),
-    Marker(
-      markerId: const MarkerId('trash_can_6'),
-      position: const LatLng(24.7220, 46.6720),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 6'),
     ),
   };
 
@@ -130,7 +124,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.w),
               child: Text(
-                '6 حاويات نفايات ذكية في المنطقة',
+                '5 حاويات نفايات ذكية في المنطقة',
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: AppColors.textSecondary,
