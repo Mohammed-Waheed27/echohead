@@ -72,39 +72,59 @@ class _WorkerJobsPageView extends StatelessWidget {
             return const SizedBox.shrink();
           }
           final loadedState = state as WorkerJobLoaded;
+          final canShowRoute = loadedState.pendingJobs.length >= 2;
           return SingleChildScrollView(
             padding: EdgeInsets.all(16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (loadedState.pendingJobs.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 16.h),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context
-                            .read<WorkerJobBloc>()
-                            .add(const WorkerJobShowOptimizedRouteRequested());
-                      },
-                      icon: Icon(Icons.route, size: 22.sp),
-                      label: Text(
-                        'أقصر مسار لإنجاز المهام',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textDirection: TextDirection.rtl,
+                Padding(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  child: ElevatedButton.icon(
+                    onPressed: canShowRoute && !loadedState.isComputingRoute
+                        ? () {
+                            context.read<WorkerJobBloc>().add(
+                                  const WorkerJobShowOptimizedRouteRequested(),
+                                );
+                          }
+                        : null,
+                    icon: loadedState.isComputingRoute
+                        ? SizedBox(
+                            width: 22.sp,
+                            height: 22.sp,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Icon(Icons.route, size: 22.sp),
+                    label: Text(
+                      loadedState.isComputingRoute
+                          ? 'جاري حساب المسار...'
+                          : canShowRoute
+                              ? 'أقصر مسار لإنجاز المهام'
+                              : loadedState.pendingJobs.isEmpty
+                              ? 'جميع المهام مكتملة'
+                              : 'يجب وجود مهمتين لعرض المسار',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentTeal,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
+                      textDirection: TextDirection.rtl,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canShowRoute
+                          ? AppColors.accentTeal
+                          : AppColors.textSecondary,
+                      disabledBackgroundColor: AppColors.borderColor,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 14.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
                   ),
+                ),
                 WorkerJobsMapSection(),
                 SizedBox(height: 24.h),
                 Text(

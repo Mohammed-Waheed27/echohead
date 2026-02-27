@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../data/services/route_distance_service.dart';
 import '../../domain/entities/worker_job_entity.dart';
 import '../../domain/repositories/worker_job_repository.dart';
 
@@ -24,52 +26,96 @@ class WorkerJobBloc extends Bloc<WorkerJobEvent, WorkerJobState> {
     emit(WorkerJobLoading());
     try {
       final jobs = await jobRepository.getAssignedJobs();
-      emit(WorkerJobLoaded(jobs: jobs));
-    } catch (e) {
-      emit(WorkerJobError(e.toString()));
-    }
-  }
-
-  Future<void> _onMarkDoneRequested(
-    WorkerJobMarkDoneRequested event,
-    Emitter<WorkerJobState> emit,
-  ) async {
-    if (state is! WorkerJobLoaded) return;
-    final currentState = state as WorkerJobLoaded;
-    try {
-      await jobRepository.markJobAsDone(event.jobId);
-      final updatedJobs = currentState.jobs.map((job) {
-        if (job.id == event.jobId) {
-          return job.copyWith(status: WorkerJobStatus.done);
-        }
-        return job;
-      }).toList();
       emit(WorkerJobLoaded(
-        jobs: updatedJobs,
-        optimizedRouteOrder: currentState.optimizedRouteOrder,
+        jobs: jobs,
+        optimizedRouteOrder: null,
       ));
     } catch (e) {
       emit(WorkerJobError(e.toString()));
     }
   }
 
-  void _onShowOptimizedRouteRequested(
-    WorkerJobShowOptimizedRouteRequested event,
+  void _onMarkDoneRequested(
+    WorkerJobMarkDoneRequested event,
     Emitter<WorkerJobState> emit,
   ) {
     if (state is! WorkerJobLoaded) return;
     final currentState = state as WorkerJobLoaded;
-    final pending = currentState.pendingJobs;
-    if (pending.isEmpty) return;
-    final ordered = _shortestPathRoute(pending);
+    final updatedJobs = currentState.jobs.map((job) {
+      if (job.id == event.jobId) {
+        return job.copyWith(status: WorkerJobStatus.done);
+      }
+      return job;
+    }).toList();
     emit(WorkerJobLoaded(
-      jobs: currentState.jobs,
-      optimizedRouteOrder: ordered,
+      jobs: updatedJobs,
+      optimizedRouteOrder: null,
+      routePolylinePoints: null,
     ));
   }
 
-  /// Computes the true shortest path by trying all permutations (TSP).
-  List<WorkerJobEntity> _shortestPathRoute(List<WorkerJobEntity> jobs) {
+  Future<void> _onShowOptimizedRouteRequested(
+    WorkerJobShowOptimizedRouteRequested event,
+    Emitter<WorkerJobState> emit,
+  ) async {
+    if (state is! WorkerJobLoaded) return;
+    final currentState = state as WorkerJobLoaded;
+    final pending = currentState.pendingJobs;
+    if (pending.isEmpty) return;
+
+    emit(WorkerJobLoaded(
+      jobs: currentState.jobs,
+      optimizedRouteOrder: null,
+      routePolylinePoints: null,
+      isComputingRoute: true,
+    ));
+
+    final matrix = await RouteDistanceService.getRoadDistanceMatrix(pending);
+    final ordered = matrix != null
+        ? _shortestPathRouteWithMatrix(pending, matrix)
+        : _shortestPathRouteHaversine(pending);
+
+    List<LatLng>? polylinePoints;
+    if (ordered.length >= 2) {
+      polylinePoints =
+          await RouteDistanceService.getRoadRouteGeometry(ordered);
+    }
+
+    if (state is WorkerJobLoaded) {
+      emit(WorkerJobLoaded(
+        jobs: (state as WorkerJobLoaded).jobs,
+        optimizedRouteOrder: ordered,
+        routePolylinePoints: polylinePoints,
+        isComputingRoute: false,
+      ));
+    }
+  }
+
+  List<WorkerJobEntity> _shortestPathRouteWithMatrix(
+    List<WorkerJobEntity> jobs,
+    List<List<double>> matrix,
+  ) {
+    if (jobs.isEmpty) return [];
+    if (jobs.length == 1) return jobs;
+    List<WorkerJobEntity> bestOrder = List.from(jobs);
+    double bestTotal = double.infinity;
+    final indices = List.generate(jobs.length, (i) => i);
+    final perms = _permutations(indices);
+    for (final perm in perms) {
+      double total = 0;
+      for (var i = 0; i < perm.length - 1; i++) {
+        final d = matrix[perm[i]][perm[i + 1]];
+        total += d.isFinite && d >= 0 ? d : double.infinity;
+      }
+      if (total < bestTotal) {
+        bestTotal = total;
+        bestOrder = perm.map((i) => jobs[i]).toList();
+      }
+    }
+    return bestOrder;
+  }
+
+  List<WorkerJobEntity> _shortestPathRouteHaversine(List<WorkerJobEntity> jobs) {
     if (jobs.isEmpty) return [];
     if (jobs.length == 1) return jobs;
     List<WorkerJobEntity> bestOrder = List.from(jobs);

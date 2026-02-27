@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +8,7 @@ import '../../domain/entities/worker_job_entity.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
 import '../bloc/worker_job_bloc.dart';
+import '../utils/worker_job_marker_icons.dart';
 import '../widgets/worker_job_info_dialog.dart';
 import '../widgets/worker_jobs_map_legend.dart';
 
@@ -18,6 +21,7 @@ class WorkerJobsMapSection extends StatefulWidget {
 
 class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
   GoogleMapController? _mapController;
+  bool _markerIconsReady = false;
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(30.0444, 31.2357),
     zoom: 12,
@@ -26,8 +30,10 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _requestLocationPermission();
+      await WorkerJobMarkerIcons.initialize();
+      if (mounted) setState(() => _markerIconsReady = true);
     });
   }
 
@@ -41,22 +47,16 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
     void Function(WorkerJobEntity) onTap,
   ) {
     return jobs.map((job) {
-      double hue;
-      if (job.status == WorkerJobStatus.done) {
-        hue = BitmapDescriptor.hueAzure;
-      } else if (job.type == WorkerJobType.cleaning) {
-        hue = BitmapDescriptor.hueGreen;
-      } else {
-        hue = BitmapDescriptor.hueOrange;
-      }
+      final snippet = job.status == WorkerJobStatus.done
+          ? 'مكتملة'
+          : job.type == WorkerJobType.cleaning
+              ? 'تنظيف'
+              : 'صيانة';
       return Marker(
         markerId: MarkerId(job.id),
         position: LatLng(job.latitude, job.longitude),
-        icon: BitmapDescriptor.defaultMarkerWithHue(hue),
-        infoWindow: InfoWindow(
-          title: job.title,
-          snippet: job.type == WorkerJobType.cleaning ? 'تنظيف' : 'صيانة',
-        ),
+        icon: WorkerJobMarkerIcons.getIcon(job),
+        infoWindow: InfoWindow(title: job.title, snippet: snippet),
         onTap: () => onTap(job),
       );
     }).toSet();
@@ -64,25 +64,64 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
 
   Set<Polyline> _buildRoutePolylines(
     List<WorkerJobEntity>? orderedJobs,
+    List<LatLng>? routePolylinePoints,
   ) {
-    if (orderedJobs == null || orderedJobs.length < 2) return {};
-    final points = orderedJobs
-        .map((j) => LatLng(j.latitude, j.longitude))
-        .toList();
+    List<LatLng> points;
+    if (routePolylinePoints != null && routePolylinePoints.length >= 2) {
+      points = routePolylinePoints;
+    } else if (orderedJobs != null && orderedJobs.length >= 2) {
+      points = orderedJobs
+          .map((j) => LatLng(j.latitude, j.longitude))
+          .toList();
+    } else {
+      return {};
+    }
     return {
       Polyline(
         polylineId: const PolylineId('optimized_route'),
         points: points,
-        color: AppColors.primaryGreen,
-        width: 4,
-        patterns: [PatternItem.dash(20), PatternItem.gap(10)],
+        color: AppColors.accentTeal,
+        width: 6,
       ),
     };
   }
 
+  void _fitRouteBounds(
+    List<LatLng> points,
+    GoogleMapController controller,
+  ) {
+    if (points.length < 2) return;
+    double minLat = points.first.latitude;
+    double maxLat = minLat;
+    double minLng = points.first.longitude;
+    double maxLng = minLng;
+    for (final p in points) {
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+      if (p.longitude < minLng) minLng = p.longitude;
+      if (p.longitude > maxLng) maxLng = p.longitude;
+    }
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+    controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 48));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkerJobBloc, WorkerJobState>(
+    return BlocConsumer<WorkerJobBloc, WorkerJobState>(
+      listener: (context, state) {
+        if (state is WorkerJobLoaded && _mapController != null) {
+          final points = state.routePolylinePoints ??
+              state.optimizedRouteOrder
+                  ?.map((j) => LatLng(j.latitude, j.longitude))
+                  .toList();
+          if (points != null && points.length >= 2) {
+            _fitRouteBounds(points, _mapController!);
+          }
+        }
+      },
       builder: (context, state) {
         if (state is WorkerJobLoading) {
           return Container(
@@ -113,7 +152,7 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
         if (state is! WorkerJobLoaded) {
           return const SizedBox.shrink();
         }
-        final loadedState = state as WorkerJobLoaded;
+        final loadedState = state;
         final markers = _buildMarkers(loadedState.jobs, (job) {
           showDialog(
             context: context,
@@ -123,7 +162,10 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
             ),
           );
         });
-        final polylines = _buildRoutePolylines(loadedState.optimizedRouteOrder);
+        final polylines = _buildRoutePolylines(
+          loadedState.optimizedRouteOrder,
+          loadedState.routePolylinePoints,
+        );
 
         return Container(
           height: 400.h,
@@ -147,7 +189,24 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
                   tiltGesturesEnabled: true,
                   myLocationButtonEnabled: false,
                   myLocationEnabled: false,
-                  onMapCreated: (controller) => _mapController = controller,
+                  gestureRecognizers: {
+                    Factory<OneSequenceGestureRecognizer>(
+                      () => EagerGestureRecognizer(),
+                    ),
+                  },
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                    final st = context.read<WorkerJobBloc>().state;
+                    if (st is WorkerJobLoaded) {
+                      final pts = st.routePolylinePoints ??
+                          st.optimizedRouteOrder
+                              ?.map((j) => LatLng(j.latitude, j.longitude))
+                              .toList();
+                      if (pts != null && pts.length >= 2) {
+                        _fitRouteBounds(pts, controller);
+                      }
+                    }
+                  },
                 ),
                 const WorkerJobsMapLegend(),
               ],
