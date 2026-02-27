@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 
 class SupervisorDashboardContent extends StatelessWidget {
@@ -370,10 +372,10 @@ class SupervisorDashboardContent extends StatelessWidget {
 
   Widget _buildQuickActionsGrid(BuildContext context) {
     final actions = [
-      {'title': 'تخصيص عمال', 'icon': Icons.person_add_outlined, 'color': AppColors.primaryGreen},
-      {'title': 'عرض المهام', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal},
-      {'title': 'تقرير الأداء', 'icon': Icons.assessment_outlined, 'color': AppColors.warningColor},
-      {'title': 'الإعدادات', 'icon': Icons.settings_outlined, 'color': AppColors.textSecondary},
+      {'title': 'تخصيص عمال', 'icon': Icons.person_add_outlined, 'color': AppColors.primaryGreen, 'onTap': () {}},
+      {'title': 'عرض المهام', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal, 'onTap': () {}},
+      {'title': 'تقرير الأداء', 'icon': Icons.assessment_outlined, 'color': AppColors.warningColor, 'onTap': () {}},
+      {'title': 'الملف الشخصي', 'icon': Icons.person_outline, 'color': AppColors.infoColor, 'onTap': () => context.push(RouterNames.profileSupervisor)},
     ];
 
     return GridView.builder(
@@ -392,6 +394,7 @@ class SupervisorDashboardContent extends StatelessWidget {
           action['title'] as String,
           action['icon'] as IconData,
           action['color'] as Color,
+          onTap: action['onTap'] as VoidCallback,
         );
       },
     );
@@ -400,10 +403,11 @@ class SupervisorDashboardContent extends StatelessWidget {
   Widget _buildQuickActionCard(
     String title,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
         padding: EdgeInsets.all(16.w),

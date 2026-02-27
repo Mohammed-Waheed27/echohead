@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../widgets/worker_dashboard_header.dart';
@@ -43,11 +41,8 @@ class WorkerDashboardPage extends StatelessWidget {
           actionsIconTheme: const IconThemeData(color: Colors.white),
           actions: [
             IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                context.read<AuthBloc>().add(const LogoutRequested());
-                context.go(RouterNames.home);
-              },
+              icon: const Icon(Icons.person_outline),
+              onPressed: () => context.push(RouterNames.profileWorker),
             ),
           ],
         ),

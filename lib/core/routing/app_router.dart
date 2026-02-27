@@ -10,6 +10,9 @@ import '../../Features/auth/presentation/bloc/auth_bloc.dart';
 import '../../Features/Admin/presentation/pages/admin_dashboard_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_dashboard_page.dart';
 import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
+import '../../Features/Worker/presentation/pages/worker_profile_page.dart';
+import '../../Features/Worker/presentation/pages/worker_jobs_page.dart';
+import '../../Features/Superviser/presentation/pages/supervisor_profile_page.dart';
 import '../../Features/user/presentation/pages/user_dashboard_page.dart';
 import '../../Features/user/presentation/pages/home_page.dart';
 import '../../Features/user/presentation/pages/report_issue_page.dart';
@@ -136,11 +139,29 @@ class AppRouter {
         ),
       ),
       GoRoute(
+        path: RouterNames.profileSupervisor,
+        builder: (context, state) => BlocProvider(
+          create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
+          child: const SupervisorProfilePage(),
+        ),
+      ),
+      GoRoute(
         path: RouterNames.dashboardWorker,
         builder: (context, state) => BlocProvider(
           create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
           child: const WorkerDashboardPage(),
         ),
+      ),
+      GoRoute(
+        path: RouterNames.profileWorker,
+        builder: (context, state) => BlocProvider(
+          create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
+          child: const WorkerProfilePage(),
+        ),
+      ),
+      GoRoute(
+        path: RouterNames.workerJobs,
+        builder: (context, state) => const WorkerJobsPage(),
       ),
       GoRoute(
         path: RouterNames.dashboardUser,

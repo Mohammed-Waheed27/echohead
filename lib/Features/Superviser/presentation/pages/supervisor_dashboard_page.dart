@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/routing/router_names.dart';
 import '../widgets/supervisor_dashboard_header.dart';
 import '../widgets/supervisor_dashboard_content.dart';
@@ -28,11 +26,8 @@ class SupervisorDashboardPage extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                context.read<AuthBloc>().add(const LogoutRequested());
-                context.go(RouterNames.home);
-              },
+              icon: const Icon(Icons.person_outline),
+              onPressed: () => context.push(RouterNames.profileSupervisor),
             ),
           ],
         ),

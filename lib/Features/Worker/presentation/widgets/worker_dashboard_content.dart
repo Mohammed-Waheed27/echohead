@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 
 class WorkerDashboardContent extends StatelessWidget {
@@ -141,11 +143,15 @@ class WorkerDashboardContent extends StatelessWidget {
       children: tasks.map((task) {
         return Padding(
           padding: EdgeInsets.only(bottom: 10.h),
-          child: _buildTaskCard(
-            task['title'] as String,
-            task['status'] as String,
-            task['color'] as Color,
-            task['icon'] as IconData,
+          child: InkWell(
+            onTap: () => context.push(RouterNames.workerJobs),
+            borderRadius: BorderRadius.circular(16.r),
+            child: _buildTaskCard(
+              task['title'] as String,
+              task['status'] as String,
+              task['color'] as Color,
+              task['icon'] as IconData,
+            ),
           ),
         );
       }).toList(),
@@ -236,9 +242,9 @@ class WorkerDashboardContent extends StatelessWidget {
 
   Widget _buildQuickActionsSection(BuildContext context) {
     final actions = [
-      {'title': 'بدء مهمة جديدة', 'icon': Icons.play_circle_outline, 'color': AppColors.primaryGreen},
-      {'title': 'تقرير يومي', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal},
-      {'title': 'طلب إجازة', 'icon': Icons.calendar_today_outlined, 'color': AppColors.warningColor},
+      {'title': 'بدء العمل على المهام', 'icon': Icons.play_circle_outline, 'color': AppColors.primaryGreen, 'onTap': () => context.push(RouterNames.workerJobs)},
+      {'title': 'تقرير للمشرف', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal, 'onTap': () => context.push(RouterNames.reportIssue)},
+      {'title': 'الملف الشخصي', 'icon': Icons.person_outline, 'color': AppColors.infoColor, 'onTap': () => context.push(RouterNames.profileWorker)},
     ];
 
     return Row(
@@ -251,6 +257,7 @@ class WorkerDashboardContent extends StatelessWidget {
               action['title'] as String,
               action['icon'] as IconData,
               action['color'] as Color,
+              onTap: action['onTap'] as VoidCallback,
             ),
           ),
         );
@@ -261,10 +268,11 @@ class WorkerDashboardContent extends StatelessWidget {
   Widget _buildQuickActionCard(
     String title,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       borderRadius: BorderRadius.circular(16.r),
       child: Container(
         padding: EdgeInsets.all(16.w),

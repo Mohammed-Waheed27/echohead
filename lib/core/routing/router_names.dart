@@ -28,6 +28,13 @@ class RouterNames {
   static const String dashboardWorker = '/dashboard/worker';
   static const String dashboardUser = '/dashboard/user';
 
+  // Profile Routes
+  static const String profileWorker = '/dashboard/worker/profile';
+  static const String profileSupervisor = '/dashboard/supervisor/profile';
+
+  // Worker Jobs
+  static const String workerJobs = '/dashboard/worker/jobs';
+
   // User Features
   static const String reportIssue = '/report-issue';
   static const String reportHistory = '/report-history';
