@@ -5,7 +5,9 @@ import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
 
 class HomeMapSection extends StatefulWidget {
-  const HomeMapSection({super.key});
+  final VoidCallback? onMapInteraction;
+
+  const HomeMapSection({super.key, this.onMapInteraction});
 
   @override
   State<HomeMapSection> createState() => _HomeMapSectionState();
@@ -92,7 +94,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
         }
       },
       mapToolbarEnabled: false,
-      onCameraMoveStarted: () {},
+      onCameraMoveStarted: () => widget.onMapInteraction?.call(),
       onCameraIdle: () {},
     );
   }

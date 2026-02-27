@@ -4,10 +4,19 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
 import '../../../../core/routing/router_names.dart';
-import '../widgets/action_button.dart';
+import '../widgets/compact_action_button.dart';
+import '../widgets/home_modal_header.dart';
 
+/// Content displayed inside the home actions draggable modal.
 class HomeActionsSection extends StatelessWidget {
-  const HomeActionsSection({super.key});
+  final VoidCallback onCollapse;
+  final ScrollController? scrollController;
+
+  const HomeActionsSection({
+    super.key,
+    required this.onCollapse,
+    this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +24,8 @@ class HomeActionsSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25.r),
-          topRight: Radius.circular(25.r),
+          topLeft: Radius.circular(20.r),
+          topRight: Radius.circular(20.r),
         ),
         boxShadow: [
           BoxShadow(
@@ -26,64 +35,64 @@ class HomeActionsSection extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 20.w,
-          vertical: 24.h,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'الخدمات المتاحة',
-              style: TextStyle(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-              textDirection: TextDirection.rtl,
-            ),
-            SizedBox(height: 20.h),
-            Row(
+      child: ListView(
+        controller: scrollController,
+        physics: const ClampingScrollPhysics(),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16.h),
+        children: [
+          HomeModalHeader(onClose: onCollapse),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: ActionButton(
-                    icon: Icons.near_me_outlined,
-                    title: 'أقرب حاوية',
-                    subtitle: 'ابحث عن أقرب حاوية',
-                    onTap: () => _findNearestTrashCan(context),
-                    color: AppColors.primaryGreen,
+                Text(
+                  'الخدمات المتاحة',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
+                  textDirection: TextDirection.rtl,
                 ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: ActionButton(
-                    icon: Icons.report_problem_outlined,
-                    title: 'الإبلاغ عن مشكلة',
-                    subtitle: 'أبلغ عن مشكلة',
-                    onTap: () => context.go(RouterNames.reportIssue),
-                    color: AppColors.accentTeal,
-                  ),
+                SizedBox(height: 12.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CompactActionButton(
+                        icon: Icons.near_me_outlined,
+                        title: 'أقرب حاوية',
+                        subtitle: 'ابحث عن أقرب حاوية',
+                        onTap: () => _findNearestTrashCan(context),
+                        color: AppColors.primaryGreen,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: CompactActionButton(
+                        icon: Icons.report_problem_outlined,
+                        title: 'الإبلاغ عن مشكلة',
+                        subtitle: 'أبلغ عن مشكلة',
+                        onTap: () => context.go(RouterNames.reportIssue),
+                        color: AppColors.accentTeal,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   void _findNearestTrashCan(BuildContext context) async {
-    // Request location permission first
-    final hasPermission = await LocationPermissionHandler.requestLocationPermission(context);
-    if (!hasPermission) {
-      return; // User denied permission or location services disabled
-    }
+    final hasPermission =
+        await LocationPermissionHandler.requestLocationPermission(context);
+    if (!hasPermission) return;
 
-    // Show a simple dialog indicating nearest trash can
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -93,16 +102,12 @@ class HomeActionsSection extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.location_on,
-              color: AppColors.primaryGreen,
-              size: 28.sp,
-            ),
+            Icon(Icons.location_on, color: AppColors.primaryGreen, size: 24.sp),
             SizedBox(width: 8.w),
             Text(
               'أقرب حاوية',
               style: TextStyle(
-                fontSize: 20.sp,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
@@ -113,7 +118,7 @@ class HomeActionsSection extends StatelessWidget {
         content: Text(
           'أقرب حاوية نفايات ذكية تقع على بعد 250 متر من موقعك الحالي.',
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 14.sp,
             color: AppColors.textSecondary,
           ),
           textDirection: TextDirection.rtl,
@@ -126,7 +131,7 @@ class HomeActionsSection extends StatelessWidget {
               'حسناً',
               style: TextStyle(
                 color: AppColors.primaryGreen,
-                fontSize: 16.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -136,4 +141,3 @@ class HomeActionsSection extends StatelessWidget {
     );
   }
 }
-
