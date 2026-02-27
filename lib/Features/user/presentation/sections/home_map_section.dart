@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
+import '../widgets/map_legend_overlay.dart';
 
 class HomeMapSection extends StatefulWidget {
   final VoidCallback? onMapInteraction;
@@ -25,20 +26,23 @@ class _HomeMapSectionState extends State<HomeMapSection> {
   final Set<Marker> _markers = {
     Marker(
       markerId: const MarkerId('trash_can_1'),
-      position: const LatLng(30.0444, 31.2357), // Downtown Cairo (Tahrir Square area)
+      position: const LatLng(
+        30.0444,
+        31.2357,
+      ), // Downtown Cairo (Tahrir Square area)
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 1'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_2'),
       position: const LatLng(30.0626, 31.2197), // Zamalek
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 2'),
     ),
     Marker(
       markerId: const MarkerId('trash_can_3'),
       position: const LatLng(30.0875, 31.3200), // Heliopolis
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 3'),
     ),
     Marker(
@@ -50,7 +54,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
     Marker(
       markerId: const MarkerId('trash_can_5'),
       position: const LatLng(30.0628, 31.3200), // Nasr City
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
       infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 5'),
     ),
   };
@@ -78,24 +82,29 @@ class _HomeMapSectionState extends State<HomeMapSection> {
   }
 
   Widget _buildMapWidget(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: _initialPosition,
-      markers: _markers,
-      mapType: MapType.normal,
-      zoomControlsEnabled: true,
-      myLocationButtonEnabled: false,
-      myLocationEnabled: false,
-      onMapCreated: (GoogleMapController controller) {
-        _mapController = controller;
-        if (mounted) {
-          setState(() {
-            _hasError = false;
-          });
-        }
-      },
-      mapToolbarEnabled: false,
-      onCameraMoveStarted: () => widget.onMapInteraction?.call(),
-      onCameraIdle: () {},
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: _initialPosition,
+          markers: _markers,
+          mapType: MapType.normal,
+          zoomControlsEnabled: true,
+          myLocationButtonEnabled: false,
+          myLocationEnabled: false,
+          onMapCreated: (GoogleMapController controller) {
+            _mapController = controller;
+            if (mounted) {
+              setState(() {
+                _hasError = false;
+              });
+            }
+          },
+          mapToolbarEnabled: false,
+          onCameraMoveStarted: () => widget.onMapInteraction?.call(),
+          onCameraIdle: () {},
+        ),
+        const MapLegendOverlay(),
+      ],
     );
   }
 
