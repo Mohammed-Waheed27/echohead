@@ -35,16 +35,22 @@ class ReportIssuePage extends StatelessWidget {
           textDirection: TextDirection.rtl,
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.history,
+              color: AppColors.textOnGreen,
+              size: 24.sp,
+            ),
+            onPressed: () => context.go(RouterNames.reportHistory),
+            tooltip: 'سجل البلاغات',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // const ReportHeader(),
-            const ReportFormSection(),
-          ],
-        ),
+        padding: EdgeInsets.all(16.w),
+        child: const ReportFormSection(),
       ),
     );
   }

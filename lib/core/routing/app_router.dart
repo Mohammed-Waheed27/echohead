@@ -13,6 +13,8 @@ import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
 import '../../Features/user/presentation/pages/user_dashboard_page.dart';
 import '../../Features/user/presentation/pages/home_page.dart';
 import '../../Features/user/presentation/pages/report_issue_page.dart';
+import '../../Features/user/presentation/pages/report_history_page.dart';
+import '../../Features/user/presentation/bloc/report_bloc.dart';
 import '../../Features/auth/presentation/pages/welcome_page.dart';
 import '../../core/shared/constants/user_types.dart';
 import '../di/service_locator.dart';
@@ -40,7 +42,16 @@ class AppRouter {
       // Report Issue Route
       GoRoute(
         path: RouterNames.reportIssue,
-        builder: (context, state) => const ReportIssuePage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) =>
+              ReportBloc(reportRepository: ServiceLocator.reportRepository),
+          child: const ReportIssuePage(),
+        ),
+      ),
+      // Report History Route
+      GoRoute(
+        path: RouterNames.reportHistory,
+        builder: (context, state) => const ReportHistoryPage(),
       ),
       GoRoute(
         path: RouterNames.splash,

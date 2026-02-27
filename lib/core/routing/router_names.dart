@@ -30,4 +30,5 @@ class RouterNames {
 
   // User Features
   static const String reportIssue = '/report-issue';
+  static const String reportHistory = '/report-history';
 }

@@ -8,6 +8,7 @@ class ReportTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final int maxLines;
+  final bool isRequired;
 
   const ReportTextField({
     super.key,
@@ -16,6 +17,7 @@ class ReportTextField extends StatelessWidget {
     required this.hint,
     required this.icon,
     this.maxLines = 1,
+    this.isRequired = true,
   });
 
   @override
@@ -74,12 +76,14 @@ class ReportTextField extends StatelessWidget {
               vertical: maxLines > 1 ? 16.h : 16.h,
             ),
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'هذا الحقل مطلوب';
-            }
-            return null;
-          },
+          validator: isRequired
+              ? (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'هذا الحقل مطلوب';
+                  }
+                  return null;
+                }
+              : null,
         ),
       ],
     );

@@ -31,31 +31,31 @@ class _HomeMapSectionState extends State<HomeMapSection> {
         31.2357,
       ), // Downtown Cairo (Tahrir Square area)
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 1'),
+      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 2%"),
     ),
     Marker(
       markerId: const MarkerId('trash_can_2'),
       position: const LatLng(30.0626, 31.2197), // Zamalek
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 2'),
+      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 100%"),
     ),
     Marker(
       markerId: const MarkerId('trash_can_3'),
       position: const LatLng(30.0875, 31.3200), // Heliopolis
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 3'),
+      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 50%"),
     ),
     Marker(
       markerId: const MarkerId('trash_can_4'),
       position: const LatLng(29.9600, 31.2600), // Maadi
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 4'),
+      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 25%"),
     ),
     Marker(
       markerId: const MarkerId('trash_can_5'),
       position: const LatLng(30.0628, 31.3200), // Nasr City
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      infoWindow: const InfoWindow(title: 'حاوية نفايات ذكية 5'),
+      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 50%"),
     ),
   };
 

@@ -5,17 +5,19 @@ import '../../../../core/shared/constants/app_colors.dart';
 
 class ReportSubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isLoading;
 
   const ReportSubmitButton({
     super.key,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return LiquidGlassButton(
-      text: 'إرسال التقرير',
-      onPressed: onPressed,
+      text: isLoading ? 'جاري الإرسال...' : 'إرسال التقرير',
+      onPressed: isLoading ? null : onPressed,
       height: 52.h,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       customColors: AppColors.liquidGlassGradient,
