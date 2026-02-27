@@ -4,7 +4,7 @@ class AppStrings {
 
   // Welcome Screen
   static const String welcome = 'مرحبا بكم';
-  static const String letsStart = 'هيا نبدء';
+  static const String letsStart = 'ابدأ الآن';
 
   // Registration Options
   static const String registerAsUser = 'التسجيل كا مستخدم';
@@ -15,6 +15,13 @@ class AppStrings {
 
   // Login
   static const String login = 'تسجيل الدخول';
+  static const String workerRoleDescription = 'لمتابعة الحاويات وتنفيذ المهام';
+  static const String supervisorRoleDescription = 'لمراقبة النظام وتحليل البيانات';
+  static const String forgotPassword = 'نسيت كلمة المرور؟';
+  static const String forgotPasswordTitle = 'استعادة كلمة المرور';
+  static const String forgotPasswordHint = 'أدخل البريد الإلكتروني لإرسال رابط الاستعادة';
+  static const String sendResetLink = 'إرسال رابط الاستعادة';
+  static const String fieldRequired = 'هذا الحقل مطلوب';
   static const String register = 'تسجيل';
   static const String username = 'Username';
   static const String password = 'Password';

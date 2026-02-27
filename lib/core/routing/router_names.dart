@@ -11,6 +11,7 @@ class RouterNames {
   static const String loginUser = '/login/user';
   static const String loginEmployee = '/login/employee';
   static const String loginManager = '/login/manager';
+  static const String forgotPassword = '/forgot-password';
 
   // Company Password Routes
   static const String companyPasswordManager = '/company-password/manager';

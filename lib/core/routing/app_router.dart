@@ -5,6 +5,7 @@ import '../../Features/auth/presentation/pages/onboarding_welcome_page.dart';
 import '../../Features/auth/presentation/pages/login_page.dart';
 import '../../Features/auth/presentation/pages/register_page.dart';
 import '../../Features/auth/presentation/pages/company_password_page.dart';
+import '../../Features/auth/presentation/pages/forgot_password_page.dart';
 import '../../Features/auth/presentation/bloc/auth_bloc.dart';
 import '../../Features/Admin/presentation/pages/admin_dashboard_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_dashboard_page.dart';
@@ -70,6 +71,10 @@ class AppRouter {
           create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
           child: const LoginPage(userType: UserType.supervisor),
         ),
+      ),
+      GoRoute(
+        path: RouterNames.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
       // Company password routes
       GoRoute(

@@ -17,7 +17,7 @@ class OnboardingWelcomeActionSection extends StatelessWidget {
         // Let's Start Button - Using white background with green text (as per design)
         SizedBox(
           width: double.infinity,
-          height: 50.h,
+          height: 60.h,
           child: ElevatedButton(
             onPressed: () async {
               // Mark first launch as complete

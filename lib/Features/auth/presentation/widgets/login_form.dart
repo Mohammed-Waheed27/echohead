@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/shared/constants/app_strings.dart';
+import 'package:trash_can/core/shared/constants/app_strings.dart';
 import '../../../../core/shared/constants/user_types.dart';
 import '../../../../core/shared/widgets/custom_text_field.dart';
 import '../../../../core/shared/widgets/custom_button.dart';
@@ -20,6 +20,11 @@ class _LoginFormState extends State<LoginForm> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? _usernameError;
+  String? _passwordError;
+
+  bool get _isWorkerOrSupervisor =>
+      widget.userType == UserType.worker || widget.userType == UserType.supervisor;
 
   @override
   void dispose() {
@@ -29,7 +34,16 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _handleLogin() {
-    // Navigate directly to dashboard based on user type
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+
+    setState(() {
+      _usernameError = username.isEmpty ? AppStrings.fieldRequired : null;
+      _passwordError = password.isEmpty ? AppStrings.fieldRequired : null;
+    });
+
+    if (username.isEmpty || password.isEmpty) return;
+
     switch (widget.userType) {
       case UserType.admin:
         context.go(RouterNames.dashboardAdmin);
@@ -46,6 +60,10 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+  void _handleForgotPassword() {
+    context.push(RouterNames.forgotPassword);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -54,6 +72,20 @@ class _LoginFormState extends State<LoginForm> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (_isWorkerOrSupervisor) ...[
+            Text(
+              widget.userType == UserType.worker
+                  ? 'لمتابعة الحاويات وتنفيذ المهام'
+                  : 'لمراقبة النظام وتحليل البيانات',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey.shade700,
+                height: 1.4,
+              ),
+            ),
+            SizedBox(height: 16.h),
+          ],
           CustomTextField(
             hintText:
                 widget.userType == UserType.worker ||
@@ -63,6 +95,8 @@ class _LoginFormState extends State<LoginForm> {
             prefixIcon: Icons.person,
             controller: _usernameController,
             keyboardType: TextInputType.emailAddress,
+            errorText: _usernameError,
+            onChanged: (_) => setState(() => _usernameError = null),
           ),
           SizedBox(height: 16.h),
           CustomTextField(
@@ -70,6 +104,8 @@ class _LoginFormState extends State<LoginForm> {
             prefixIcon: Icons.lock,
             obscureText: _obscurePassword,
             controller: _passwordController,
+            errorText: _passwordError,
+            onChanged: (_) => setState(() => _passwordError = null),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -82,6 +118,22 @@ class _LoginFormState extends State<LoginForm> {
               },
             ),
           ),
+          if (_isWorkerOrSupervisor) ...[
+            SizedBox(height: 8.h),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _handleForgotPassword,
+                child: Text(
+                  AppStrings.forgotPassword,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+            ),
+          ],
           SizedBox(height: 24.h),
           CustomButton(text: AppStrings.login, onPressed: _handleLogin),
         ],
