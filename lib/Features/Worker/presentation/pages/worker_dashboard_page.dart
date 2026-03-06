@@ -11,10 +11,10 @@ class WorkerDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        context.go(RouterNames.home);
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go(RouterNames.home);
       },
       child: Scaffold(
         appBar: AppBar(

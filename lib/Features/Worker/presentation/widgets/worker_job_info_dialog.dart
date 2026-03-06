@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../domain/entities/worker_job_entity.dart';
+import '../../../../core/domain/entities/bin_entity.dart';
 import '../../../../core/shared/constants/app_colors.dart';
+import '../../../user/presentation/widgets/bin_history_dialog.dart';
+import '../../domain/entities/worker_job_entity.dart';
 import '../bloc/worker_job_bloc.dart';
 
 class WorkerJobInfoDialog extends StatelessWidget {
   final WorkerJobEntity job;
+  final BinEntity? bin;
 
-  const WorkerJobInfoDialog({super.key, required this.job});
+  const WorkerJobInfoDialog({super.key, required this.job, this.bin});
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +103,34 @@ class WorkerJobInfoDialog extends StatelessWidget {
                     textDirection: TextDirection.rtl,
                   ),
                 ],
+              ),
+            ],
+            if (bin != null) ...[
+              SizedBox(height: 16.h),
+              OutlinedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => BinHistoryDialog(bin: bin!),
+                  );
+                },
+                icon: Icon(Icons.history, size: 20.sp),
+                label: Text(
+                  'عرض سجل الحاوية',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textDirection: TextDirection.rtl,
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.accentTeal,
+                  side: BorderSide(color: AppColors.accentTeal),
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
               ),
             ],
             if (isDone) ...[

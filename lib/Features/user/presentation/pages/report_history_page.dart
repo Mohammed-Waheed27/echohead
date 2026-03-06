@@ -38,7 +38,13 @@ class _ReportHistoryView extends StatelessWidget {
             color: AppColors.textOnGreen,
             size: 24.sp,
           ),
-          onPressed: () => context.go(RouterNames.home),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouterNames.home);
+            }
+          },
         ),
         title: Text(
           'سجل البلاغات',

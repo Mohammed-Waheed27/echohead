@@ -11,11 +11,13 @@ import '../widgets/home_modal_header.dart';
 class HomeActionsSection extends StatelessWidget {
   final VoidCallback onCollapse;
   final ScrollController? scrollController;
+  final VoidCallback? onFindNearestTrashCan;
 
   const HomeActionsSection({
     super.key,
     required this.onCollapse,
     this.scrollController,
+    this.onFindNearestTrashCan,
   });
 
   @override
@@ -64,7 +66,9 @@ class HomeActionsSection extends StatelessWidget {
                         icon: Icons.near_me_outlined,
                         title: 'أقرب حاوية',
                         subtitle: 'ابحث عن أقرب حاوية',
-                        onTap: () => _findNearestTrashCan(context),
+                        onTap: () => onFindNearestTrashCan != null
+                            ? onFindNearestTrashCan!()
+                            : _findNearestTrashCanFallback(context),
                         color: AppColors.primaryGreen,
                       ),
                     ),
@@ -96,7 +100,7 @@ class HomeActionsSection extends StatelessWidget {
     );
   }
 
-  void _findNearestTrashCan(BuildContext context) async {
+  void _findNearestTrashCanFallback(BuildContext context) async {
     final hasPermission =
         await LocationPermissionHandler.requestLocationPermission(context);
     if (!hasPermission) return;

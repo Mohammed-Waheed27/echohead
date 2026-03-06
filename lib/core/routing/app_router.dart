@@ -13,8 +13,14 @@ import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
 import '../../Features/Worker/presentation/pages/worker_profile_page.dart';
 import '../../Features/Worker/presentation/pages/worker_jobs_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_profile_page.dart';
+import '../../Features/Superviser/presentation/pages/supervisor_worker_management_page.dart';
+import '../../Features/Superviser/presentation/pages/supervisor_add_worker_page.dart';
+import '../../Features/Superviser/presentation/pages/supervisor_overview_page.dart';
+import '../../Features/Superviser/presentation/pages/supervisor_tasks_page.dart';
 import '../../Features/user/presentation/pages/user_dashboard_page.dart';
 import '../../Features/user/presentation/pages/home_page.dart';
+import '../../core/presentation/bloc/bin_bloc.dart';
+import '../../core/presentation/bloc/bin_event.dart';
 import '../../Features/user/presentation/pages/report_issue_page.dart';
 import '../../Features/user/presentation/pages/report_history_page.dart';
 import '../../Features/user/presentation/bloc/report_bloc.dart';
@@ -37,10 +43,15 @@ class AppRouter {
         path: RouterNames.onboardingWelcome,
         builder: (context, state) => const OnboardingWelcomePage(),
       ),
-      // Home Route
+      // Home Route (user - map centered on Manzalah, bins, current location, route to nearest)
       GoRoute(
         path: RouterNames.home,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) =>
+              BinBloc(binRepository: ServiceLocator.binRepository)
+                ..add(const BinLoadRequested()),
+          child: const HomePage(),
+        ),
       ),
       // Report Issue Route
       GoRoute(
@@ -137,13 +148,50 @@ class AppRouter {
           create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
           child: const SupervisorDashboardPage(),
         ),
-      ),
-      GoRoute(
-        path: RouterNames.profileSupervisor,
-        builder: (context, state) => BlocProvider(
-          create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
-          child: const SupervisorProfilePage(),
-        ),
+        routes: [
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => BlocProvider(
+              create: (context) =>
+                  _createAuthBloc()..add(const CheckAuthStatus()),
+              child: const SupervisorProfilePage(),
+            ),
+          ),
+          GoRoute(
+            path: 'workers',
+            builder: (context, state) => BlocProvider(
+              create: (context) =>
+                  _createAuthBloc()..add(const CheckAuthStatus()),
+              child: const SupervisorWorkerManagementPage(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => BlocProvider(
+                  create: (context) =>
+                      _createAuthBloc()..add(const CheckAuthStatus()),
+                  child: const SupervisorAddWorkerPage(),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'overview',
+            builder: (context, state) => BlocProvider(
+              create: (context) =>
+                  _createAuthBloc()..add(const CheckAuthStatus()),
+              child: const SupervisorOverviewPage(),
+            ),
+          ),
+          GoRoute(
+            path: 'tasks',
+            builder: (context, state) => BlocProvider(
+              create: (context) =>
+                  _createAuthBloc()..add(const CheckAuthStatus()),
+              child: const SupervisorTasksPage(),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: RouterNames.dashboardWorker,

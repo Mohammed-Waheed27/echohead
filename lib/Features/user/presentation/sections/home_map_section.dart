@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/domain/entities/bin_entity.dart';
+import '../../../../core/presentation/bloc/bin_bloc.dart';
+import '../../../../core/presentation/bloc/bin_state.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
+import '../widgets/bin_history_dialog.dart';
 import '../widgets/map_legend_overlay.dart';
 
 class HomeMapSection extends StatefulWidget {
@@ -18,75 +23,101 @@ class _HomeMapSectionState extends State<HomeMapSection> {
   GoogleMapController? _mapController;
   bool _hasError = false;
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(30.0444, 31.2357), // Cairo, Egypt coordinates
-    zoom: 13,
+    target: LatLng(31.1582, 31.936), // Manzalah - المنزلة
+    zoom: 15,
   );
 
-  // Trash can locations in Cairo, Egypt
-  final Set<Marker> _markers = {
-    Marker(
-      markerId: const MarkerId('trash_can_1'),
-      position: const LatLng(
-        30.0444,
-        31.2357,
-      ), // Downtown Cairo (Tahrir Square area)
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 2%"),
-    ),
-    Marker(
-      markerId: const MarkerId('trash_can_2'),
-      position: const LatLng(30.0626, 31.2197), // Zamalek
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 100%"),
-    ),
-    Marker(
-      markerId: const MarkerId('trash_can_3'),
-      position: const LatLng(30.0875, 31.3200), // Heliopolis
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 50%"),
-    ),
-    Marker(
-      markerId: const MarkerId('trash_can_4'),
-      position: const LatLng(29.9600, 31.2600), // Maadi
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 25%"),
-    ),
-    Marker(
-      markerId: const MarkerId('trash_can_5'),
-      position: const LatLng(30.0628, 31.3200), // Nasr City
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      infoWindow: const InfoWindow(title: "ممتلئه بنسبة 50%"),
-    ),
-  };
+  Set<Marker> _buildMarkers(List<BinEntity> bins, void Function(BinEntity) onTap) {
+    return bins.map((bin) {
+      final hue = bin.fillPercent >= 80
+          ? BitmapDescriptor.hueRed
+          : bin.fillPercent >= 50
+              ? BitmapDescriptor.hueYellow
+              : BitmapDescriptor.hueGreen;
+      return Marker(
+        markerId: MarkerId(bin.id),
+        position: LatLng(bin.latitude, bin.longitude),
+        icon: BitmapDescriptor.defaultMarkerWithHue(hue),
+        infoWindow: InfoWindow(
+          title: bin.name,
+          snippet: 'ممتلئة بنسبة ${bin.fillPercent}%',
+        ),
+        onTap: () => onTap(bin),
+      );
+    }).toSet();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceColor,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20.r),
-          bottomRight: Radius.circular(20.r),
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20.r),
-          bottomRight: Radius.circular(20.r),
-        ),
-        child: _hasError
-            ? _buildErrorWidget(context)
-            : _buildMapWidget(context),
-      ),
+    return BlocBuilder<BinBloc, BinState>(
+      builder: (context, state) {
+        if (state is BinLoading || state is BinInitial) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceColor,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.primaryGreen),
+            ),
+          );
+        }
+        if (state is BinError) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceColor,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                state.message,
+                textDirection: TextDirection.rtl,
+                style: TextStyle(color: AppColors.errorColor, fontSize: 14.sp),
+              ),
+            ),
+          );
+        }
+        final bins = (state as BinLoaded).bins;
+        final markers = _buildMarkers(bins, (bin) {
+          showDialog(
+            context: context,
+            builder: (ctx) => BinHistoryDialog(bin: bin),
+          );
+        });
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceColor,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.r),
+              bottomRight: Radius.circular(20.r),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.r),
+              bottomRight: Radius.circular(20.r),
+            ),
+            child: _hasError
+                ? _buildErrorWidget(context, bins)
+                : _buildMapWidget(context, markers),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildMapWidget(BuildContext context) {
+  Widget _buildMapWidget(BuildContext context, Set<Marker> markers) {
     return Stack(
       children: [
         GoogleMap(
           initialCameraPosition: _initialPosition,
-          markers: _markers,
+          markers: markers,
           mapType: MapType.normal,
           zoomControlsEnabled: true,
           myLocationButtonEnabled: false,
@@ -108,7 +139,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
     );
   }
 
-  Widget _buildErrorWidget(BuildContext context) {
+  Widget _buildErrorWidget(BuildContext context, List<BinEntity> bins) {
     return Container(
       color: AppColors.backgroundColor,
       child: Center(
@@ -135,7 +166,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.w),
               child: Text(
-                '5 حاويات نفايات ذكية في المنطقة',
+                '${bins.length} حاويات نفايات ذكية في المنطقة',
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: AppColors.textSecondary,
@@ -145,9 +176,8 @@ class _HomeMapSectionState extends State<HomeMapSection> {
               ),
             ),
             SizedBox(height: 24.h),
-            // Show trash can locations as a list
             ...List.generate(
-              _markers.length,
+              bins.length,
               (index) => Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 4.h),
                 child: Row(
@@ -161,7 +191,7 @@ class _HomeMapSectionState extends State<HomeMapSection> {
                     ),
                     SizedBox(width: 8.w),
                     Text(
-                      'حاوية نفايات ذكية ${index + 1}',
+                      bins[index].name,
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: AppColors.textSecondary,

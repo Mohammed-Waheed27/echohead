@@ -23,8 +23,8 @@ class _WorkerJobsMapSectionState extends State<WorkerJobsMapSection> {
   GoogleMapController? _mapController;
   bool _markerIconsReady = false;
   static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(30.0444, 31.2357),
-    zoom: 12,
+    target: LatLng(31.1582, 31.936), // Manzalah - المنزلة
+    zoom: 15,
   );
 
   @override

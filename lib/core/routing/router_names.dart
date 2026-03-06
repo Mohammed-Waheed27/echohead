@@ -35,6 +35,12 @@ class RouterNames {
   // Worker Jobs
   static const String workerJobs = '/dashboard/worker/jobs';
 
+  // Supervisor Pages
+  static const String supervisorWorkerManagement = '/dashboard/supervisor/workers';
+  static const String supervisorAddWorker = '/dashboard/supervisor/workers/add';
+  static const String supervisorOverview = '/dashboard/supervisor/overview';
+  static const String supervisorTasks = '/dashboard/supervisor/tasks';
+
   // User Features
   static const String reportIssue = '/report-issue';
   static const String reportHistory = '/report-history';

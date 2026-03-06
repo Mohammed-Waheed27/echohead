@@ -35,32 +35,70 @@ class WorkerDashboardContent extends StatelessWidget {
   }
 
   Widget _buildStatsSection(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: _buildStatCard(
-            'المهام المكتملة',
-            '12',
-            Icons.check_circle_outline,
-            AppColors.successColor,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'الحاويات التي فرغتها',
+                '12',
+                Icons.check_circle_outline,
+                AppColors.successColor,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildStatCard(
+                'المهام المتبقية',
+                '8',
+                Icons.pending_outlined,
+                AppColors.warningColor,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildStatCard(
-            'قيد التنفيذ',
-            '5',
-            Icons.work_outline,
-            AppColors.warningColor,
+        SizedBox(height: 12.h),
+        Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: AppColors.primaryGreen.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: AppColors.primaryGreen.withOpacity(0.3)),
           ),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildStatCard(
-            'المعلقة',
-            '3',
-            Icons.pending_outlined,
-            AppColors.textSecondary,
+          child: Row(
+            textDirection: TextDirection.rtl,
+            children: [
+              Icon(
+                Icons.access_time,
+                color: AppColors.primaryGreen,
+                size: 24.sp,
+              ),
+              SizedBox(width: 12.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'وقت بداية الشيفت',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.textSecondary,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                  Text(
+                    '8:00 ص',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryGreen,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

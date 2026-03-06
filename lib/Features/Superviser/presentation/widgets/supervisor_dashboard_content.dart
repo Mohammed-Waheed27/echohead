@@ -5,7 +5,16 @@ import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 
 class SupervisorDashboardContent extends StatelessWidget {
-  const SupervisorDashboardContent({super.key});
+  final VoidCallback? onNavigateToWorkers;
+  final VoidCallback? onNavigateToTasks;
+  final VoidCallback? onNavigateToOverview;
+
+  const SupervisorDashboardContent({
+    super.key,
+    this.onNavigateToWorkers,
+    this.onNavigateToTasks,
+    this.onNavigateToOverview,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +29,19 @@ class SupervisorDashboardContent extends StatelessWidget {
           SizedBox(height: 24.h),
 
           // Workers Management Section
-          _buildSectionTitle('إدارة العمال'),
+          _buildSectionTitle(
+            'إدارة العمال',
+            onViewAll: onNavigateToWorkers ?? () => context.push(RouterNames.supervisorWorkerManagement),
+          ),
           SizedBox(height: 12.h),
           _buildWorkersSection(context),
           SizedBox(height: 24.h),
 
           // Tasks Overview
-          _buildSectionTitle('نظرة عامة على المهام'),
+          _buildSectionTitle(
+            'نظرة عامة على المهام',
+            onViewAll: onNavigateToTasks ?? () => context.push(RouterNames.supervisorTasks),
+          ),
           SizedBox(height: 12.h),
           _buildTasksOverview(context),
           SizedBox(height: 24.h),
@@ -41,35 +56,114 @@ class SupervisorDashboardContent extends StatelessWidget {
   }
 
   Widget _buildStatsOverview(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: _buildStatCard(
-            'إجمالي العمال',
-            '15',
-            Icons.people_outline,
-            AppColors.primaryGreen,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'إجمالي الحاويات',
+                '5',
+                Icons.delete_outline,
+                AppColors.primaryGreen,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildStatCard(
+                'عدد الممتلئة',
+                '2',
+                Icons.warning_amber_outlined,
+                AppColors.warningColor,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildStatCard(
-            'المهام النشطة',
-            '23',
-            Icons.assignment_outlined,
-            AppColors.accentTeal,
-          ),
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'عدد البلاغات',
+                '3',
+                Icons.report_outlined,
+                AppColors.accentTeal,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: _buildStatCard(
+                'متوسط زمن الاستجابة',
+                '12 د',
+                Icons.schedule_outlined,
+                AppColors.infoColor,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _buildStatCard(
-            'المكتملة اليوم',
-            '8',
-            Icons.check_circle_outline,
-            AppColors.successColor,
-          ),
-        ),
+        SizedBox(height: 16.h),
+        _buildSimpleChart(context),
       ],
+    );
+  }
+
+  Widget _buildSimpleChart(BuildContext context) {
+    final data = [2, 1, 2, 0, 1]; // Filled count per day (mock)
+    final labels = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي'];
+    final maxVal = data.reduce((a, b) => a > b ? a : b).clamp(1, 10);
+
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'الحاويات الممتلئة (آخر 5 أيام)',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+            textDirection: TextDirection.rtl,
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(5, (i) {
+              final h = (data[i] / maxVal) * 60.h;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 24.w,
+                    height: h.clamp(8.0, 60.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGreen,
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    labels[i],
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      color: AppColors.textSecondary,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                ],
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
@@ -132,7 +226,7 @@ class SupervisorDashboardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, {VoidCallback? onViewAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -145,17 +239,18 @@ class SupervisorDashboardContent extends StatelessWidget {
           ),
           textDirection: TextDirection.rtl,
         ),
-        TextButton(
-          onPressed: () {},
-          child: Text(
-            'عرض الكل',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: AppColors.primaryGreen,
+        if (onViewAll != null)
+          TextButton(
+            onPressed: onViewAll,
+            child: Text(
+              'عرض الكل',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: AppColors.primaryGreen,
+              ),
+              textDirection: TextDirection.rtl,
             ),
-            textDirection: TextDirection.rtl,
           ),
-        ),
       ],
     );
   }
@@ -167,6 +262,8 @@ class SupervisorDashboardContent extends StatelessWidget {
       {'name': 'خالد أحمد', 'status': 'إجازة', 'tasks': '0', 'color': AppColors.warningColor},
     ];
 
+    final onViewAll = onNavigateToWorkers ?? () => context.push(RouterNames.supervisorWorkerManagement);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: workers.map((worker) {
@@ -177,6 +274,7 @@ class SupervisorDashboardContent extends StatelessWidget {
             worker['status'] as String,
             worker['tasks'] as String,
             worker['color'] as Color,
+            onViewAll,
           ),
         );
       }).toList(),
@@ -188,6 +286,7 @@ class SupervisorDashboardContent extends StatelessWidget {
     String status,
     String tasks,
     Color statusColor,
+    VoidCallback onViewAll,
   ) {
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -283,7 +382,7 @@ class SupervisorDashboardContent extends StatelessWidget {
               size: 14.sp,
               color: AppColors.primaryGreen,
             ),
-            onPressed: () {},
+            onPressed: onViewAll,
           ),
         ],
       ),
@@ -372,9 +471,9 @@ class SupervisorDashboardContent extends StatelessWidget {
 
   Widget _buildQuickActionsGrid(BuildContext context) {
     final actions = [
-      {'title': 'تخصيص عمال', 'icon': Icons.person_add_outlined, 'color': AppColors.primaryGreen, 'onTap': () {}},
-      {'title': 'عرض المهام', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal, 'onTap': () {}},
-      {'title': 'تقرير الأداء', 'icon': Icons.assessment_outlined, 'color': AppColors.warningColor, 'onTap': () {}},
+      {'title': 'إدارة العمال', 'icon': Icons.people_outlined, 'color': AppColors.primaryGreen, 'onTap': onNavigateToWorkers ?? () => context.push(RouterNames.supervisorWorkerManagement)},
+      {'title': 'عرض المهام', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal, 'onTap': onNavigateToTasks ?? () => context.push(RouterNames.supervisorTasks)},
+      {'title': 'نظرة عامة', 'icon': Icons.assessment_outlined, 'color': AppColors.warningColor, 'onTap': onNavigateToOverview ?? () => context.push(RouterNames.supervisorOverview)},
       {'title': 'الملف الشخصي', 'icon': Icons.person_outline, 'color': AppColors.infoColor, 'onTap': () => context.push(RouterNames.profileSupervisor)},
     ];
 

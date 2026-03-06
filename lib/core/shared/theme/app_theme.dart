@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 
+/// Cairo is a modern Arabic font with excellent readability and RTL support.
 class AppTheme {
   static ThemeData get lightTheme {
+    final baseTextTheme = ThemeData.light().textTheme;
+    final cairoTextTheme = GoogleFonts.cairoTextTheme(baseTextTheme).apply(
+      bodyColor: AppColors.textPrimary,
+      displayColor: AppColors.textPrimary,
+    );
+
     return ThemeData(
       useMaterial3: true,
+      fontFamily: GoogleFonts.cairo().fontFamily,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryGreen,
         primary: AppColors.primaryGreen,
@@ -21,23 +30,28 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
+        titleTextStyle: GoogleFonts.cairo(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
       ),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
+      textTheme: cairoTextTheme.copyWith(
+        displayLarge: cairoTextTheme.displayLarge?.copyWith(
           color: AppColors.textPrimary,
           fontSize: 32,
           fontWeight: FontWeight.bold,
         ),
-        displayMedium: TextStyle(
+        displayMedium: cairoTextTheme.displayMedium?.copyWith(
           color: AppColors.textPrimary,
           fontSize: 24,
           fontWeight: FontWeight.bold,
         ),
-        bodyLarge: TextStyle(
+        bodyLarge: cairoTextTheme.bodyLarge?.copyWith(
           color: AppColors.textPrimary,
           fontSize: 18,
         ),
-        bodyMedium: TextStyle(
+        bodyMedium: cairoTextTheme.bodyMedium?.copyWith(
           color: AppColors.textSecondary,
           fontSize: 16,
         ),

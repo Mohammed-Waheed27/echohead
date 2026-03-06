@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/domain/repositories/bin_repository.dart';
 import '../../data/services/route_distance_service.dart';
 import '../../domain/entities/worker_job_entity.dart';
 import '../../domain/repositories/worker_job_repository.dart';
@@ -12,8 +13,12 @@ part 'worker_job_state.dart';
 
 class WorkerJobBloc extends Bloc<WorkerJobEvent, WorkerJobState> {
   final WorkerJobRepository jobRepository;
+  final BinRepository binRepository;
 
-  WorkerJobBloc({required this.jobRepository}) : super(WorkerJobInitial()) {
+  WorkerJobBloc({
+    required this.jobRepository,
+    required this.binRepository,
+  }) : super(WorkerJobInitial()) {
     on<WorkerJobLoadRequested>(_onLoadRequested);
     on<WorkerJobMarkDoneRequested>(_onMarkDoneRequested);
     on<WorkerJobShowOptimizedRouteRequested>(_onShowOptimizedRouteRequested);
@@ -26,8 +31,22 @@ class WorkerJobBloc extends Bloc<WorkerJobEvent, WorkerJobState> {
     emit(WorkerJobLoading());
     try {
       final jobs = await jobRepository.getAssignedJobs();
+      final allBins = await binRepository.getAllBins();
+      final maintenanceLocs = allBins
+          .where((b) => b.isUnderMaintenance)
+          .map((b) => (b.latitude, b.longitude))
+          .toSet();
+      final filteredJobs = jobs.where((job) {
+        for (final loc in maintenanceLocs) {
+          if ((job.latitude - loc.$1).abs() < 0.0001 &&
+              (job.longitude - loc.$2).abs() < 0.0001) {
+            return false;
+          }
+        }
+        return true;
+      }).toList();
       emit(WorkerJobLoaded(
-        jobs: jobs,
+        jobs: filteredJobs,
         optimizedRouteOrder: null,
       ));
     } catch (e) {

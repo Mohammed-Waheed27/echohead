@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/constants/user_types.dart';
 import '../widgets/worker_profile_header.dart';
@@ -12,8 +13,19 @@ class WorkerProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(RouterNames.dashboardWorker);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
         backgroundColor: AppColors.primaryGreen,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -22,7 +34,13 @@ class WorkerProfilePage extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(RouterNames.dashboardWorker);
+            }
+          },
         ),
         title: const Text(
           'الملف الشخصي',
@@ -35,7 +53,7 @@ class WorkerProfilePage extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
+        body: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -51,6 +69,7 @@ class WorkerProfilePage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }

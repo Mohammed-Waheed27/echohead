@@ -5,12 +5,15 @@ import '../../Features/user/data/repositories/report_repository_impl.dart';
 import '../../Features/user/domain/repositories/report_repository.dart';
 import '../../Features/Worker/data/repositories/worker_job_repository_impl.dart';
 import '../../Features/Worker/domain/repositories/worker_job_repository.dart';
+import '../data/repositories/bin_repository_impl.dart';
+import '../domain/repositories/bin_repository.dart';
 
 class ServiceLocator {
   static SharedPreferences? _sharedPreferences;
   static AuthRepository? _authRepository;
   static ReportRepository? _reportRepository;
   static WorkerJobRepository? _workerJobRepository;
+  static BinRepository? _binRepository;
 
   static Future<void> init() async {
     _sharedPreferences = await SharedPreferences.getInstance();
@@ -23,6 +26,7 @@ class ServiceLocator {
     _workerJobRepository = WorkerJobRepositoryImpl(
       sharedPreferences: _sharedPreferences!,
     );
+    _binRepository = BinRepositoryImpl();
   }
 
   static AuthRepository get authRepository {
@@ -51,6 +55,13 @@ class ServiceLocator {
       throw Exception('ServiceLocator not initialized. Call init() first.');
     }
     return _sharedPreferences!;
+  }
+
+  static BinRepository get binRepository {
+    if (_binRepository == null) {
+      throw Exception('ServiceLocator not initialized. Call init() first.');
+    }
+    return _binRepository!;
   }
 }
 
