@@ -32,6 +32,12 @@ class AppStrings {
   static const String companyPasswordForEmployee =
       'ادخل باسورد الشركة للموظفين';
 
+  // Login errors
+  static const String notRegisteredSupervisor =
+      'اسم المستخدم غير مسجل كمشرف. يرجى التأكد من بياناتك أو التواصل مع الإدارة';
+  static const String notRegisteredWorker =
+      'اسم المستخدم غير مسجل كعامل. يرجى التأكد من بياناتك أو التواصل مع الإدارة';
+
   // Terms
   static const String agreeToPermissions = 'انا اوفق علي صلاحيات البرنامج';
 

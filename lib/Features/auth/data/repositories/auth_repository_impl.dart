@@ -2,6 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/shared/constants/user_types.dart';
+import '../../../../core/shared/constants/allowed_usernames.dart';
+import '../../../../core/shared/constants/app_strings.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final SharedPreferences sharedPreferences;
@@ -14,6 +16,16 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     UserType? userType,
   }) async {
+    if (userType == UserType.supervisor) {
+      if (!AllowedUsernames.isAllowedSupervisor(username)) {
+        throw Exception(AppStrings.notRegisteredSupervisor);
+      }
+    } else if (userType == UserType.worker) {
+      if (!AllowedUsernames.isAllowedWorker(username)) {
+        throw Exception(AppStrings.notRegisteredWorker);
+      }
+    }
+
     // TODO: Implement actual API call
     // For now, simulate login
     await Future.delayed(const Duration(seconds: 1));
