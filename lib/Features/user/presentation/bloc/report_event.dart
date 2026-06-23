@@ -33,3 +33,7 @@ class SubmitReportEvent extends ReportEvent {
 class LoadReportsHistoryEvent extends ReportEvent {
   const LoadReportsHistoryEvent();
 }
+
+class WatchUserReportsEvent extends ReportEvent {
+  const WatchUserReportsEvent();
+}

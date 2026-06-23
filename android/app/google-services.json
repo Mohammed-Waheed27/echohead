@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "829147882423",
+    "firebase_url": "https://smart-bin-v2-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "smart-bin-v2",
+    "storage_bucket": "smart-bin-v2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829147882423:android:c05216ce55de7a26f4fe32",
+        "android_client_info": {
+          "package_name": "com.example.trash_can"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsGGmmTj0jHoIUKb3BpyfLWMhtIk5oaFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

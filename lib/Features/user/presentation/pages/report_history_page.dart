@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/routing/router_names.dart';
+import '../../../../core/shared/widgets/report_error_view.dart';
 import '../bloc/report_bloc.dart';
 import '../sections/report_history_section.dart';
 
@@ -14,9 +15,10 @@ class ReportHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          ReportBloc(reportRepository: ServiceLocator.reportRepository)
-            ..add(const LoadReportsHistoryEvent()),
+      create: (context) => ReportBloc(
+        reportRepository: ServiceLocator.reportRepository,
+        sharedPreferences: ServiceLocator.sharedPreferences,
+      )..add(const WatchUserReportsEvent()),
       child: const _ReportHistoryView(),
     );
   }
@@ -61,37 +63,15 @@ class _ReportHistoryView extends StatelessWidget {
         builder: (context, state) {
           if (state is ReportHistoryLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primaryGreen,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primaryGreen),
             );
           }
 
           if (state is ReportHistoryLoadFailure) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(24.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64.sp,
-                      color: AppColors.errorColor,
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      state.message,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: AppColors.textSecondary,
-                      ),
-                      textDirection: TextDirection.rtl,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+            return ReportErrorView(
+              message: state.message,
+              onRetry: () =>
+                  context.read<ReportBloc>().add(const WatchUserReportsEvent()),
             );
           }
 

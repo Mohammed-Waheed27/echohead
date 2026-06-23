@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/shared/constants/app_colors.dart';
+import '../../../../core/shared/widgets/report_status_badge.dart';
+import 'report_deletion_countdown.dart';
 import '../../domain/entities/report_entity.dart';
 
 class ReportHistoryCard extends StatelessWidget {
@@ -10,15 +12,13 @@ class ReportHistoryCard extends StatelessWidget {
 
   const ReportHistoryCard({super.key, required this.report});
 
-  Color _statusColor() {
-    switch (report.status) {
-      case ReportStatus.pending:
-        return AppColors.warningColor;
-      case ReportStatus.inProgress:
-        return AppColors.infoColor;
-      case ReportStatus.resolved:
+  Color _severityColor(ReportSeverity severity) {
+    switch (severity) {
+      case ReportSeverity.low:
         return AppColors.successColor;
-      case ReportStatus.rejected:
+      case ReportSeverity.medium:
+        return AppColors.warningColor;
+      case ReportSeverity.high:
         return AppColors.errorColor;
     }
   }
@@ -55,22 +55,7 @@ class ReportHistoryCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: _statusColor().withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: _statusColor().withOpacity(0.5)),
-                ),
-                child: Text(
-                  report.status.displayName,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: _statusColor(),
-                  ),
-                ),
-              ),
+              ReportStatusBadge(status: report.status),
             ],
           ),
           SizedBox(height: 8.h),
@@ -96,7 +81,7 @@ class ReportHistoryCard extends StatelessWidget {
                   fontSize: 12.sp,
                   color: AppColors.textSecondary,
                 ),
-                ),
+              ),
             ],
           ),
           if (report.description.isNotEmpty) ...[
@@ -108,7 +93,7 @@ class ReportHistoryCard extends StatelessWidget {
                 color: AppColors.textSecondary,
                 height: 1.4,
               ),
-              maxLines: 2,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -136,18 +121,104 @@ class ReportHistoryCard extends StatelessWidget {
               ],
             ),
           ],
-          if (report.imagePath != null &&
-              report.imagePath!.isNotEmpty &&
-              File(report.imagePath!).existsSync()) ...[
+          if (report.workerResponse != null &&
+              report.workerResponse!.isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: AppColors.infoColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(color: AppColors.infoColor.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.support_agent,
+                        size: 16.sp,
+                        color: AppColors.infoColor,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'رد العامل${report.workerName != null ? ' (${report.workerName})' : ''}',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.infoColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    report.workerResponse!,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: AppColors.textPrimary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (report.adminNote != null && report.adminNote!.isNotEmpty) ...[
+            SizedBox(height: 8.h),
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: AppColors.warningColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(
+                  color: AppColors.warningColor.withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.admin_panel_settings_outlined,
+                        size: 16.sp,
+                        color: AppColors.warningColor,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'ملاحظة الإدارة',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.warningColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    report.adminNote!,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: AppColors.textPrimary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (report.isResolved && report.scheduledDeleteAt != null) ...[
+            SizedBox(height: 8.h),
+            ReportDeletionCountdown(report: report),
+          ],
+          if (_hasImage()) ...[
             SizedBox(height: 10.h),
             ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
-              child: Image.file(
-                File(report.imagePath!),
-                height: 80.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: _buildImage(),
             ),
           ],
         ],
@@ -155,14 +226,31 @@ class ReportHistoryCard extends StatelessWidget {
     );
   }
 
-  Color _severityColor(ReportSeverity severity) {
-    switch (severity) {
-      case ReportSeverity.low:
-        return AppColors.successColor;
-      case ReportSeverity.medium:
-        return AppColors.warningColor;
-      case ReportSeverity.high:
-        return AppColors.errorColor;
+  bool _hasImage() {
+    if (report.imageUrl != null && report.imageUrl!.isNotEmpty) return true;
+    if (report.imagePath != null &&
+        report.imagePath!.isNotEmpty &&
+        File(report.imagePath!).existsSync()) {
+      return true;
     }
+    return false;
+  }
+
+  Widget _buildImage() {
+    if (report.imageUrl != null && report.imageUrl!.isNotEmpty) {
+      return Image.network(
+        report.imageUrl!,
+        height: 100.h,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      );
+    }
+    return Image.file(
+      File(report.imagePath!),
+      height: 100.h,
+      width: double.infinity,
+      fit: BoxFit.cover,
+    );
   }
 }

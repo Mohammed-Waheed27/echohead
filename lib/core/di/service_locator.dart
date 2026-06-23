@@ -5,8 +5,12 @@ import '../../Features/user/data/repositories/report_repository_impl.dart';
 import '../../Features/user/domain/repositories/report_repository.dart';
 import '../../Features/Worker/data/repositories/worker_job_repository_impl.dart';
 import '../../Features/Worker/domain/repositories/worker_job_repository.dart';
+import '../data/datasources/report_firestore_datasource.dart';
+import '../data/datasources/report_realtime_datasource.dart';
 import '../data/repositories/bin_repository_impl.dart';
+import '../data/repositories/smart_bin_realtime_repository_impl.dart';
 import '../domain/repositories/bin_repository.dart';
+import '../domain/repositories/smart_bin_realtime_repository.dart';
 
 class ServiceLocator {
   static SharedPreferences? _sharedPreferences;
@@ -14,6 +18,7 @@ class ServiceLocator {
   static ReportRepository? _reportRepository;
   static WorkerJobRepository? _workerJobRepository;
   static BinRepository? _binRepository;
+  static SmartBinRealtimeRepository? _smartBinRealtimeRepository;
 
   static Future<void> init() async {
     _sharedPreferences = await SharedPreferences.getInstance();
@@ -21,12 +26,15 @@ class ServiceLocator {
       sharedPreferences: _sharedPreferences!,
     );
     _reportRepository = ReportRepositoryImpl(
+      firestoreDatasource: ReportFirestoreDatasource(),
+      rtdbDatasource: ReportRealtimeDatasource(),
       sharedPreferences: _sharedPreferences!,
     );
     _workerJobRepository = WorkerJobRepositoryImpl(
       sharedPreferences: _sharedPreferences!,
     );
     _binRepository = BinRepositoryImpl();
+    _smartBinRealtimeRepository = SmartBinRealtimeRepositoryImpl();
   }
 
   static AuthRepository get authRepository {
@@ -63,5 +71,11 @@ class ServiceLocator {
     }
     return _binRepository!;
   }
-}
 
+  static SmartBinRealtimeRepository get smartBinRealtimeRepository {
+    if (_smartBinRealtimeRepository == null) {
+      throw Exception('ServiceLocator not initialized. Call init() first.');
+    }
+    return _smartBinRealtimeRepository!;
+  }
+}

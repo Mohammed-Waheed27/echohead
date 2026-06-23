@@ -8,10 +8,12 @@ import '../../Features/auth/presentation/pages/company_password_page.dart';
 import '../../Features/auth/presentation/pages/forgot_password_page.dart';
 import '../../Features/auth/presentation/bloc/auth_bloc.dart';
 import '../../Features/Admin/presentation/pages/admin_dashboard_page.dart';
+import '../../Features/Admin/presentation/pages/admin_reports_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_dashboard_page.dart';
 import '../../Features/Worker/presentation/pages/worker_dashboard_page.dart';
 import '../../Features/Worker/presentation/pages/worker_profile_page.dart';
 import '../../Features/Worker/presentation/pages/worker_jobs_page.dart';
+import '../../Features/Worker/presentation/pages/worker_reports_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_profile_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_worker_management_page.dart';
 import '../../Features/Superviser/presentation/pages/supervisor_add_worker_page.dart';
@@ -21,6 +23,9 @@ import '../../Features/user/presentation/pages/user_dashboard_page.dart';
 import '../../Features/user/presentation/pages/home_page.dart';
 import '../../core/presentation/bloc/bin_bloc.dart';
 import '../../core/presentation/bloc/bin_event.dart';
+import '../../core/presentation/bloc/smart_bin_realtime_bloc.dart';
+import '../../core/presentation/bloc/smart_bin_realtime_event.dart';
+import '../../core/shared/constants/smart_bin_constants.dart';
 import '../../Features/user/presentation/pages/report_issue_page.dart';
 import '../../Features/user/presentation/pages/report_history_page.dart';
 import '../../Features/user/presentation/bloc/report_bloc.dart';
@@ -46,10 +51,24 @@ class AppRouter {
       // Home Route (user - map centered on Manzalah, bins, current location, route to nearest)
       GoRoute(
         path: RouterNames.home,
-        builder: (context, state) => BlocProvider(
-          create: (context) =>
-              BinBloc(binRepository: ServiceLocator.binRepository)
-                ..add(const BinLoadRequested()),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) =>
+                  BinBloc(binRepository: ServiceLocator.binRepository)
+                    ..add(const BinLoadRequested()),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  SmartBinRealtimeBloc(
+                    repository: ServiceLocator.smartBinRealtimeRepository,
+                  )..add(
+                    const SmartBinRealtimeWatchBinRequested(
+                      SmartBinConstants.realtimeBinId,
+                    ),
+                  ),
+            ),
+          ],
           child: const HomePage(),
         ),
       ),
@@ -57,8 +76,10 @@ class AppRouter {
       GoRoute(
         path: RouterNames.reportIssue,
         builder: (context, state) => BlocProvider(
-          create: (context) =>
-              ReportBloc(reportRepository: ServiceLocator.reportRepository),
+          create: (context) => ReportBloc(
+            reportRepository: ServiceLocator.reportRepository,
+            sharedPreferences: ServiceLocator.sharedPreferences,
+          ),
           child: const ReportIssuePage(),
         ),
       ),
@@ -141,6 +162,12 @@ class AppRouter {
           create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
           child: const AdminDashboardPage(),
         ),
+        routes: [
+          GoRoute(
+            path: 'reports',
+            builder: (context, state) => const AdminReportsPage(),
+          ),
+        ],
       ),
       GoRoute(
         path: RouterNames.dashboardSupervisor,
@@ -199,6 +226,12 @@ class AppRouter {
           create: (context) => _createAuthBloc()..add(const CheckAuthStatus()),
           child: const WorkerDashboardPage(),
         ),
+        routes: [
+          GoRoute(
+            path: 'reports',
+            builder: (context, state) => const WorkerReportsPage(),
+          ),
+        ],
       ),
       GoRoute(
         path: RouterNames.profileWorker,

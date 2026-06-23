@@ -117,10 +117,7 @@ class WorkerDashboardContent extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
-          ],
+          colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
         ),
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: color.withOpacity(0.3)),
@@ -143,10 +140,7 @@ class WorkerDashboardContent extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
             textDirection: TextDirection.rtl,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
@@ -170,10 +164,30 @@ class WorkerDashboardContent extends StatelessWidget {
 
   Widget _buildTodayTasksSection(BuildContext context) {
     final tasks = [
-      {'title': 'تنظيف المنطقة أ', 'status': 'مكتملة', 'color': AppColors.successColor, 'icon': Icons.check_circle},
-      {'title': 'تنظيف المنطقة ب', 'status': 'قيد التنفيذ', 'color': AppColors.warningColor, 'icon': Icons.work},
-      {'title': 'تنظيف المنطقة ج', 'status': 'معلقة', 'color': AppColors.textSecondary, 'icon': Icons.pending},
-      {'title': 'صيانة الحاوية 5', 'status': 'جديدة', 'color': AppColors.primaryGreen, 'icon': Icons.build},
+      {
+        'title': 'تنظيف المنطقة أ',
+        'status': 'مكتملة',
+        'color': AppColors.successColor,
+        'icon': Icons.check_circle,
+      },
+      {
+        'title': 'تنظيف المنطقة ب',
+        'status': 'قيد التنفيذ',
+        'color': AppColors.warningColor,
+        'icon': Icons.work,
+      },
+      {
+        'title': 'تنظيف المنطقة ج',
+        'status': 'معلقة',
+        'color': AppColors.textSecondary,
+        'icon': Icons.pending,
+      },
+      {
+        'title': 'صيانة الحاوية 5',
+        'status': 'جديدة',
+        'color': AppColors.primaryGreen,
+        'icon': Icons.build,
+      },
     ];
 
     return Column(
@@ -280,9 +294,24 @@ class WorkerDashboardContent extends StatelessWidget {
 
   Widget _buildQuickActionsSection(BuildContext context) {
     final actions = [
-      {'title': 'بدء العمل على المهام', 'icon': Icons.play_circle_outline, 'color': AppColors.primaryGreen, 'onTap': () => context.push(RouterNames.workerJobs)},
-      {'title': 'تقرير للمشرف', 'icon': Icons.assignment_outlined, 'color': AppColors.accentTeal, 'onTap': () => context.push(RouterNames.reportIssue)},
-      {'title': 'الملف الشخصي', 'icon': Icons.person_outline, 'color': AppColors.infoColor, 'onTap': () => context.push(RouterNames.profileWorker)},
+      {
+        'title': 'بلاغات المستخدمين',
+        'icon': Icons.report_outlined,
+        'color': AppColors.errorColor,
+        'onTap': () => context.push(RouterNames.workerReports),
+      },
+      {
+        'title': 'بدء العمل على المهام',
+        'icon': Icons.play_circle_outline,
+        'color': AppColors.primaryGreen,
+        'onTap': () => context.push(RouterNames.workerJobs),
+      },
+      {
+        'title': 'الملف الشخصي',
+        'icon': Icons.person_outline,
+        'color': AppColors.infoColor,
+        'onTap': () => context.push(RouterNames.profileWorker),
+      },
     ];
 
     return Row(
@@ -318,10 +347,7 @@ class WorkerDashboardContent extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              color,
-              color.withOpacity(0.8),
-            ],
+            colors: [color, color.withOpacity(0.8)],
           ),
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [

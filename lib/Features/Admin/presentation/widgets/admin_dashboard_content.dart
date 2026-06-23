@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routing/router_names.dart';
 import '../../../../core/shared/constants/app_colors.dart';
 import '../../../../core/shared/utils/responsive_helper.dart';
 
@@ -9,7 +11,7 @@ class AdminDashboardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = ResponsiveHelper.getResponsivePadding(context);
-    
+
     return Padding(
       padding: padding,
       child: Column(
@@ -34,7 +36,12 @@ class AdminDashboardContent extends StatelessWidget {
                       Colors.blue,
                       context,
                     ),
-                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                    SizedBox(
+                      height: ResponsiveHelper.getResponsiveSpacing(
+                        context,
+                        16,
+                      ),
+                    ),
                     _buildStatCard(
                       'العمال',
                       '45',
@@ -42,7 +49,12 @@ class AdminDashboardContent extends StatelessWidget {
                       Colors.orange,
                       context,
                     ),
-                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                    SizedBox(
+                      height: ResponsiveHelper.getResponsiveSpacing(
+                        context,
+                        16,
+                      ),
+                    ),
                     _buildStatCard(
                       'المستخدمين',
                       '234',
@@ -50,7 +62,12 @@ class AdminDashboardContent extends StatelessWidget {
                       Colors.green,
                       context,
                     ),
-                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                    SizedBox(
+                      height: ResponsiveHelper.getResponsiveSpacing(
+                        context,
+                        16,
+                      ),
+                    ),
                     _buildStatCard(
                       'المناطق',
                       '8',
@@ -73,7 +90,12 @@ class AdminDashboardContent extends StatelessWidget {
                             context,
                           ),
                         ),
-                        SizedBox(width: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                        SizedBox(
+                          width: ResponsiveHelper.getResponsiveSpacing(
+                            context,
+                            16,
+                          ),
+                        ),
                         Expanded(
                           child: _buildStatCard(
                             'العمال',
@@ -85,7 +107,12 @@ class AdminDashboardContent extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                    SizedBox(
+                      height: ResponsiveHelper.getResponsiveSpacing(
+                        context,
+                        16,
+                      ),
+                    ),
                     Row(
                       children: [
                         Expanded(
@@ -97,7 +124,12 @@ class AdminDashboardContent extends StatelessWidget {
                             context,
                           ),
                         ),
-                        SizedBox(width: ResponsiveHelper.getResponsiveSpacing(context, 16)),
+                        SizedBox(
+                          width: ResponsiveHelper.getResponsiveSpacing(
+                            context,
+                            16,
+                          ),
+                        ),
                         Expanded(
                           child: _buildStatCard(
                             'المناطق',
@@ -122,25 +154,22 @@ class AdminDashboardContent extends StatelessWidget {
           ),
           SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 16)),
           _buildActionCard(
+            'إدارة البلاغات',
+            Icons.report_outlined,
+            () => context.push(RouterNames.adminReports),
+            context,
+          ),
+          SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 12)),
+          _buildActionCard(
             'إدارة المشرفين',
             Icons.supervisor_account,
             () {},
             context,
           ),
           SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 12)),
-          _buildActionCard(
-            'إدارة العمال',
-            Icons.work,
-            () {},
-            context,
-          ),
+          _buildActionCard('إدارة العمال', Icons.work, () {}, context),
           SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context, 12)),
-          _buildActionCard(
-            'إدارة المناطق',
-            Icons.location_on,
-            () {},
-            context,
-          ),
+          _buildActionCard('إدارة المناطق', Icons.location_on, () {}, context),
         ],
       ),
     );
@@ -154,7 +183,9 @@ class AdminDashboardContent extends StatelessWidget {
     BuildContext context,
   ) {
     return Container(
-      padding: EdgeInsets.all(ResponsiveHelper.getResponsiveSpacing(context, 16)),
+      padding: EdgeInsets.all(
+        ResponsiveHelper.getResponsiveSpacing(context, 16),
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
@@ -205,7 +236,9 @@ class AdminDashboardContent extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(ResponsiveHelper.getResponsiveSpacing(context, 16)),
+        padding: EdgeInsets.all(
+          ResponsiveHelper.getResponsiveSpacing(context, 16),
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
@@ -240,4 +273,3 @@ class AdminDashboardContent extends StatelessWidget {
     );
   }
 }
-

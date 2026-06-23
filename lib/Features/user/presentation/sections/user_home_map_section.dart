@@ -5,15 +5,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:trash_can/core/presentation/bloc/bin_event.dart';
 import '../../../../core/domain/entities/bin_entity.dart';
+import '../../../../core/domain/entities/smart_bin_realtime_entity.dart';
 import '../../../../core/presentation/bloc/bin_bloc.dart';
 import '../../../../core/presentation/bloc/bin_state.dart';
+import '../../../../core/presentation/bloc/smart_bin_realtime_bloc.dart';
+import '../../../../core/presentation/bloc/smart_bin_realtime_state.dart';
 import '../../../../core/shared/constants/app_colors.dart';
+import '../../../../core/shared/constants/smart_bin_constants.dart';
 import '../../../../core/shared/utils/location_permission_handler.dart';
+import '../../../../core/shared/utils/smart_bin_status_helper.dart';
+import '../../../../core/data/smart_bin_satellite_bins_data.dart';
 import '../../../../core/data/services/user_route_service.dart';
-import '../widgets/bin_history_dialog.dart';
 import '../widgets/map_legend_overlay.dart';
 
-/// Map centered on Manzalah with bins, current location, and route to nearest.
+/// Map centered on the live smart bin with bins, RTDB status, and route to nearest ready bin.
 class UserHomeMapSection extends StatefulWidget {
   final VoidCallback? onMapInteraction;
   final ValueNotifier<int>? findNearestTrigger;
@@ -34,57 +39,85 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
   bool _locationPermissionGranted = false;
   Position? _currentPosition;
   Set<Polyline> _polylines = {};
-  BinEntity? _highlightedNearestBin;
 
-  /// Manzalah center - المنزلة
-  static const LatLng _manzalahCenter = LatLng(31.1582, 31.936);
-  static const CameraPosition _initialPosition = CameraPosition(
-    target: _manzalahCenter,
+  static final LatLng _mapCenter = LatLng(
+    SmartBinConstants.workerRealtimeBinLat,
+    SmartBinConstants.workerRealtimeBinLng,
+  );
+  static final CameraPosition _initialPosition = CameraPosition(
+    target: _mapCenter,
     zoom: 15,
   );
 
-  Set<Marker> _buildMarkers(
-    List<BinEntity> bins,
-    void Function(BinEntity) onTap,
-  ) {
-    final markers = bins.map((bin) {
-      final hue = bin.fillPercent >= 80
-          ? BitmapDescriptor.hueRed
-          : bin.fillPercent >= 50
-              ? BitmapDescriptor.hueYellow
-              : BitmapDescriptor.hueGreen;
+  static final Map<String, SmartBinSatelliteBinItem> _satelliteByUserBinId =
+      SmartBinSatelliteBinsData.byUserHomeBinId();
+
+  Set<Marker> _buildMarkers({
+    required List<BinEntity> bins,
+    required SmartBinRealtimeEntity? liveMiddleBin,
+  }) {
+    return bins.map((bin) {
+      final isLiveBin = bin.id == SmartBinConstants.userHomeLinkedBinId;
+      final satellite = _satelliteByUserBinId[bin.id];
+      final hue = isLiveBin && liveMiddleBin != null
+          ? SmartBinStatusHelper.markerHueFromRealtime(liveMiddleBin)
+          : satellite != null
+          ? SmartBinStatusHelper.markerHueFromRealtime(satellite.data)
+          : SmartBinStatusHelper.markerHueFromFillPercent(bin.fillPercent);
+
+      final snippet = isLiveBin && liveMiddleBin != null
+          ? 'الحالة: ${liveMiddleBin.statusLabel} • غاز ${liveMiddleBin.gasPercent()}%'
+          : satellite != null
+          ? 'الحالة: ${satellite.data.statusLabel} • غاز ${SmartBinStatusHelper.gasPercent(satellite.data.gas)}%'
+          : 'ممتلئة بنسبة ${bin.fillPercent}%';
+
       return Marker(
         markerId: MarkerId(bin.id),
         position: LatLng(bin.latitude, bin.longitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(hue),
-        infoWindow: InfoWindow(
-          title: bin.name,
-          snippet: 'ممتلئة بنسبة ${bin.fillPercent}%',
-        ),
-        onTap: () => onTap(bin),
+        infoWindow: InfoWindow(title: bin.name, snippet: snippet),
       );
     }).toSet();
-    return markers;
+  }
+
+  bool _isBinReady({
+    required BinEntity bin,
+    required SmartBinRealtimeEntity? liveMiddleBin,
+  }) {
+    if (bin.isUnderMaintenance) return false;
+    if (bin.id == SmartBinConstants.userHomeLinkedBinId &&
+        liveMiddleBin != null) {
+      return liveMiddleBin.isReady;
+    }
+    final satellite = _satelliteByUserBinId[bin.id];
+    if (satellite != null) return satellite.data.isReady;
+    return bin.fillPercent < 50;
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BinBloc, BinState>(
-      builder: (context, state) {
-        if (state is BinLoading || state is BinInitial) {
-          return _buildLoadingWidget();
-        }
-        if (state is BinError) {
-          return _buildErrorStateWidget(state.message);
-        }
-        final bins = (state as BinLoaded).bins;
-        final markers = _buildMarkers(bins, (bin) {
-          showDialog(
-            context: context,
-            builder: (ctx) => BinHistoryDialog(bin: bin),
-          );
-        });
-        return _buildMapContainer(markers);
+    return BlocBuilder<SmartBinRealtimeBloc, SmartBinRealtimeState>(
+      builder: (context, realtimeState) {
+        final liveMiddleBin = realtimeState is SmartBinRealtimeLoaded
+            ? realtimeState.bin(SmartBinConstants.realtimeBinId)
+            : null;
+
+        return BlocBuilder<BinBloc, BinState>(
+          builder: (context, state) {
+            if (state is BinLoading || state is BinInitial) {
+              return _buildLoadingWidget();
+            }
+            if (state is BinError) {
+              return _buildErrorStateWidget(state.message);
+            }
+            final bins = (state as BinLoaded).bins;
+            final markers = _buildMarkers(
+              bins: bins,
+              liveMiddleBin: liveMiddleBin,
+            );
+            return _buildMapContainer(markers);
+          },
+        );
       },
     );
   }
@@ -161,7 +194,6 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
           },
           mapToolbarEnabled: false,
           onCameraMoveStarted: () => widget.onMapInteraction?.call(),
-          onCameraIdle: () {},
         ),
         const MapLegendOverlay(),
       ],
@@ -175,7 +207,11 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.map_outlined, size: 56.sp, color: AppColors.primaryGreen),
+            Icon(
+              Icons.map_outlined,
+              size: 56.sp,
+              color: AppColors.primaryGreen,
+            ),
             SizedBox(height: 16.h),
             Text(
               'خريطة حاويات النفايات - المنزلة',
@@ -184,12 +220,6 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
               ),
-              textDirection: TextDirection.rtl,
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'حاويات ذكية في منطقة المنزلة',
-              style: TextStyle(fontSize: 12.sp, color: AppColors.textSecondary),
               textDirection: TextDirection.rtl,
             ),
           ],
@@ -209,7 +239,7 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
   }
 
   void _onFindNearestTriggered() {
-    if (mounted) showRouteToNearestBin();
+    if (mounted) showRouteToNearestReadyBin();
   }
 
   Future<void> _requestLocationPermission() async {
@@ -220,7 +250,10 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
     if (!mounted) return;
     setState(() => _locationPermissionGranted = granted);
     if (granted) {
-      _fetchCurrentLocation();
+      await _fetchCurrentLocation();
+      if (mounted) {
+        await showRouteToNearestReadyBin(showSnackBar: false);
+      }
     }
   }
 
@@ -237,8 +270,7 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
     }
   }
 
-  /// Called when user taps "أقرب حاوية" - shows route to nearest bin.
-  Future<void> showRouteToNearestBin() async {
+  Future<void> showRouteToNearestReadyBin({bool showSnackBar = true}) async {
     if (!mounted) return;
     final granted = await LocationPermissionHandler.requestLocationPermission(
       context,
@@ -252,7 +284,7 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
           desiredAccuracy: LocationAccuracy.medium,
         );
       } catch (_) {
-        if (mounted) {
+        if (showSnackBar && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
@@ -269,30 +301,61 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
     if (!mounted) return;
     setState(() => _currentPosition = pos);
 
-    final state = context.read<BinBloc>().state;
-    if (state is! BinLoaded || state.bins.isEmpty) return;
+    final binState = context.read<BinBloc>().state;
+    if (binState is! BinLoaded || binState.bins.isEmpty) return;
+
+    final realtimeState = context.read<SmartBinRealtimeBloc>().state;
+    final liveMiddleBin = realtimeState is SmartBinRealtimeLoaded
+        ? realtimeState.bin(SmartBinConstants.realtimeBinId)
+        : null;
 
     final userLatLng = LatLng(pos!.latitude, pos.longitude);
-    BinEntity? nearest;
+    BinEntity? nearestReady;
     double minDist = double.infinity;
-    for (final bin in state.bins) {
-      if (bin.isUnderMaintenance) continue;
-      final d = UserRouteService.straightLineDistanceMeters(
+
+    for (final bin in binState.bins) {
+      if (!_isBinReady(bin: bin, liveMiddleBin: liveMiddleBin)) continue;
+      final distance = UserRouteService.straightLineDistanceMeters(
         userLatLng,
         LatLng(bin.latitude, bin.longitude),
       );
-      if (d < minDist) {
-        minDist = d;
-        nearest = bin;
+      if (distance < minDist) {
+        minDist = distance;
+        nearestReady = bin;
       }
     }
 
-    if (nearest == null) {
-      if (mounted) {
+    if (nearestReady == null) {
+      if (showSnackBar && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-              'لا توجد حاويات متاحة في المنطقة',
+              'لا توجد حاويات جاهزة في المنطقة حالياً',
+              textDirection: TextDirection.rtl,
+            ),
+            backgroundColor: AppColors.warningColor,
+          ),
+        );
+      }
+      setState(() => _polylines = {});
+      return;
+    }
+
+    final destLatLng = LatLng(nearestReady.latitude, nearestReady.longitude);
+    final routePoints = await UserRouteService.getStreetRouteGeometry(
+      userLatLng,
+      destLatLng,
+    );
+
+    if (!mounted) return;
+
+    if (routePoints == null || routePoints.length < 2) {
+      setState(() => _polylines = {});
+      if (showSnackBar && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'تعذر حساب مسار الشوارع، حاول مرة أخرى',
               textDirection: TextDirection.rtl,
             ),
             backgroundColor: AppColors.warningColor,
@@ -302,45 +365,33 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
       return;
     }
 
-    final destLatLng = LatLng(nearest.latitude, nearest.longitude);
-    final routePoints = await UserRouteService.getRouteGeometry(
-      userLatLng,
-      destLatLng,
-    );
-
-    if (!mounted) return;
     setState(() {
-      _highlightedNearestBin = nearest;
       _polylines = {
         Polyline(
-          polylineId: const PolylineId('route_to_nearest'),
-          points: routePoints ??
-              [userLatLng, destLatLng],
+          polylineId: const PolylineId('route_to_nearest_ready'),
+          points: routePoints,
           color: AppColors.primaryGreen,
-          width: 5,
+          width: 4,
+          patterns: [PatternItem.dot, PatternItem.gap(12)],
         ),
       };
     });
 
     _mapController?.animateCamera(
       CameraUpdate.newLatLngBounds(
-        _boundsFromPoints([
-          userLatLng,
-          destLatLng,
-          ...?routePoints,
-        ]),
+        _boundsFromPoints([userLatLng, destLatLng, ...routePoints]),
         48,
       ),
     );
 
-    final distText = minDist < 1000
-        ? '${minDist.round()} متر'
-        : '${(minDist / 1000).toStringAsFixed(1)} كم';
-    if (mounted) {
+    if (showSnackBar && mounted) {
+      final distText = minDist < 1000
+          ? '${minDist.round()} متر'
+          : '${(minDist / 1000).toStringAsFixed(1)} كم';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'أقرب حاوية: ${nearest.name} - على بعد $distText',
+            'أقرب حاوية جاهزة: ${nearestReady.name} - على بعد $distText',
             textDirection: TextDirection.rtl,
           ),
           backgroundColor: AppColors.primaryGreen,
@@ -352,10 +403,7 @@ class _UserHomeMapSectionState extends State<UserHomeMapSection> {
 
   LatLngBounds _boundsFromPoints(List<LatLng> points) {
     if (points.isEmpty) {
-      return LatLngBounds(
-        southwest: _manzalahCenter,
-        northeast: _manzalahCenter,
-      );
+      return LatLngBounds(southwest: _mapCenter, northeast: _mapCenter);
     }
     double minLat = points.first.latitude;
     double maxLat = points.first.latitude;

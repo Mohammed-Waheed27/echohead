@@ -54,15 +54,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
         if (state is ReportSubmitSuccess) {
           _showSuccessDialog(context);
         } else if (state is ReportSubmitFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.message,
-                textDirection: TextDirection.rtl,
-              ),
-              backgroundColor: AppColors.errorColor,
-            ),
-          );
+          _showSubmitErrorDialog(context, state.message);
         }
       },
       builder: (context, state) {
@@ -166,10 +158,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: AppColors.primaryGreen,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: AppColors.primaryGreen, width: 2),
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.w,
@@ -182,10 +171,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
               child: Text(
                 type,
                 textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: 14.sp, color: AppColors.textPrimary),
               ),
             );
           }).toList(),
@@ -201,10 +187,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
           hint: Text(
             'اختر نوع المشكلة',
             textDirection: TextDirection.rtl,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14.sp,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
           ),
         ),
       ],
@@ -228,18 +211,81 @@ class _ReportFormSectionState extends State<ReportFormSection> {
     }
 
     context.read<ReportBloc>().add(
-          SubmitReportEvent(
-            issueType: _selectedIssueType!,
-            description: _descriptionController.text.trim(),
-            latitude: _latitude,
-            longitude: _longitude,
-            address: _locationController.text.trim().isNotEmpty
-                ? _locationController.text.trim()
-                : null,
-            imagePath: _imagePath,
-            severity: _selectedSeverity!,
+      SubmitReportEvent(
+        issueType: _selectedIssueType!,
+        description: _descriptionController.text.trim(),
+        latitude: _latitude,
+        longitude: _longitude,
+        address: _locationController.text.trim().isNotEmpty
+            ? _locationController.text.trim()
+            : null,
+        imagePath: _imagePath,
+        severity: _selectedSeverity!,
+      ),
+    );
+  }
+
+  void _showSubmitErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Row(
+          textDirection: TextDirection.rtl,
+          children: [
+            Icon(
+              Icons.cloud_off_outlined,
+              color: AppColors.errorColor,
+              size: 28.sp,
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              'فشل إرسال البلاغ',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          message,
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: AppColors.textSecondary,
+            height: 1.5,
           ),
-        );
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'إلغاء',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _submitReport(context);
+            },
+            child: Text(
+              'إعادة المحاولة',
+              style: TextStyle(
+                color: AppColors.primaryGreen,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSuccessDialog(BuildContext context) {
@@ -283,10 +329,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
             },
             child: Text(
               'إرسال بلاغ آخر',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14.sp,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
             ),
           ),
           TextButton(
@@ -310,10 +353,7 @@ class _ReportFormSectionState extends State<ReportFormSection> {
             },
             child: Text(
               'الرئيسية',
-              style: TextStyle(
-                color: AppColors.primaryGreen,
-                fontSize: 14.sp,
-              ),
+              style: TextStyle(color: AppColors.primaryGreen, fontSize: 14.sp),
             ),
           ),
         ],

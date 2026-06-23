@@ -1,9 +1,11 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/routing/app_router.dart';
 import 'core/shared/theme/app_theme.dart';
+import 'core/shared/utils/firebase_bootstrap.dart';
 import 'core/di/service_locator.dart';
 
 void main() async {
@@ -21,6 +23,7 @@ void main() async {
     return true;
   };
 
+  await FirebaseBootstrap.configure();
   await ServiceLocator.init();
   runApp(const MyApp());
 }
